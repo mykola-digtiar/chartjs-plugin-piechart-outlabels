@@ -91,13 +91,25 @@ Chart.plugins.register({
 	resize: function(chart, size, options) {
 		if (options.font.resizable) {
 			options.font.size = (size.height / 100) * 2.5;
+			if(options.font.minSize && options.font.size < options.font.minSize) {
+				options.font.size = options.font.minSize;
+			}
+			if(options.font.maxSize && options.font.size > options.font.maxSize) {
+				options.font.size = options.font.maxSize;
+			}
 			options.font.changed = true;
 		}
 	},
 	afterInit: function(chart, options) {
 		var size = chart.canvas.style;
 		if (options.font.resizable) {
-			options.font.size = (size.height.slice(0, -2) / 100) * 2.5;
+			options.font.size = (size.height / 100) * 2.5;
+			if(options.font.minSize && options.font.size < options.font.minSize) {
+				options.font.size = options.font.minSize;
+			}
+			if(options.font.maxSize && options.font.size > options.font.maxSize) {
+				options.font.size = options.font.maxSize;
+			}
 		}
 	},
 	afterDatasetUpdate: function(chart, args, options) {
