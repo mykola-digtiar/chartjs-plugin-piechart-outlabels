@@ -103,7 +103,7 @@ Chart.plugins.register({
 	afterInit: function(chart, options) {
 		var size = chart.canvas.style;
 		if (options.font.resizable) {
-			options.font.size = (size.height / 100) * 2.5;
+			options.font.size = (size.height.slice(0, -2) / 100) * 2.5;
 			if(options.font.minSize && options.font.size < options.font.minSize) {
 				options.font.size = options.font.minSize;
 			}
