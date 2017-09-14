@@ -84,7 +84,7 @@ gulp.task('docs', function(done) {
 gulp.task('samples', function() {
 	// since we moved the dist files one folder up (package root), we need to rewrite
 	// samples src="../dist/ to src="../ and then copy them in the /samples directory.
-	var out = path.join(argv.output, argv.samplesDir);
+	var out = path.join(argv.output);
 	return gulp.src('samples/**/*', {base: 'samples'})
 		.pipe(streamify(replace(/src="((?:\.\.\/)+)dist\//g, 'src="$1', {skipBinary: true})))
 		.pipe(gulp.dest(out));
@@ -100,14 +100,14 @@ gulp.task('package', ['build', 'samples'], function() {
 	.pipe(gulp.dest(out));
 });
 
-gulp.task('netlify', ['build', 'docs', 'samples'], function() {
+gulp.task('netlify', ['build', 'samples'], function() {
 	var root = argv.output;
 	var out = path.join(root, argv.wwwDir);
 
 	return merge(
-		gulp.src(path.join(root, argv.docsDir, '**/*'), {base: path.join(root, argv.docsDir)}),
-		gulp.src(path.join(root, argv.samplesDir, '**/*'), {base: root}),
-		gulp.src(path.join(root, '*.js'))
+		// gulp.src(path.join(root, argv.docsDir, '**/*'), {base: path.join(root, argv.docsDir)}),
+		gulp.src(path.join(root, '**/*'), {base: root})
+		// gulp.src(path.join(root, '*.js'))
 	)
 	.pipe(streamify(replace(/https?:\/\/chartjs-plugin-piechart-outlabels\.netlify\.com\/?/g, '/', {skipBinary: true})))
 	.pipe(gulp.dest(out));
