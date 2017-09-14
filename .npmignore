@@ -1,0 +1,9 @@
+/.git
+/dist/*.zip
+/node_modules
+/scripts
+/.vscode
+
+.codeclimate.yml
+.gitignore
+.travis.yml

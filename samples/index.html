@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="./style.css">
+	<link rel="icon" type="image/ico" href="./favicon.ico">
+	<script src="https://rawgit.com/chartjs/chartjs.github.io/master/dist/master/Chart.min.js"></script>
+	<script src="../dist/chartjs-plugin-piechart-outlabels.js"></script>
+	<script src="./utils.js"></script>
+	<script src="./jscolor.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+	<title>Pie Chart Outlabels</title>
+</head>
+<body class="container-fluid">
+	<div class="row">
+		<div class="col-3 side">
+			<div class="header">Pie Chart Outlabels</div>
+			<div class="actions">
+				<button class="btn btn-info" onclick="randomize(this)">Randomize</button>
+				<button class="btn btn-success" onclick="addData(this)">Add Data</button>
+				<button class="btn btn-danger" onclick="removeData(this)">Remove Data</button>
+
+				<div class="form-group">
+					<label>Label</label>
+					<div class="input-group">
+						<label class="input-group-addon" for="text">Text</label>
+						<textarea class="form-control" oninput="changeParam('text', this.value)" id="text">%l %p&#13;VALUE: %v</textarea>
+					</div>
+					<div class="input-group">
+						<label class="input-group-addon" for="lineColor">Border</label>
+						<span class="input-group-addon">
+							<label class="form-check-label">
+								<input type="checkbox" class="form-check-input" checked name="lineColor" onchange="changeParam('borderColor', undefined)" value="left" id="borderColorCheckbox"/>
+								Adapt
+							</label>
+						</span>
+						<input class="form-control jscolor" value="FFFFFF" onchange="changeParam('borderColor', '#' + this.value)" id="borderColor">
+					</div>
+
+					<div class="input-group">
+						<label class="input-group-addon">Border Width</label>
+						<span class="input-group-addon" style="width: 100%">
+							<input oninput="changeParam('borderWidth', +this.value)" type="range" min="0" max="20" value="2" step="1" class="slider">
+						</span>
+					</div>
+
+					<div class="input-group">
+						<label class="input-group-addon">Border Radius</label>
+						<span class="input-group-addon" style="width: 100%">
+							<input oninput="changeParam('borderRadius', +this.value)" type="range" min="0" max="20" value="2" step="1" class="slider">
+						</span>
+					</div>
+
+					<div class="input-group">
+						<label class="input-group-addon" for="lineColor">Background</label>
+						<span class="input-group-addon">
+							<label class="form-check-label">
+								<input type="checkbox" class="form-check-input" checked name="lineColor" onchange="changeParam('backgroundColor', undefined)" value="left" id="backgroundColorCheckbox"/>
+								Adapt
+							</label>
+						</span>
+						<input class="form-control jscolor" value="FFFFFF" onchange="changeParam('backgroundColor', '#' + this.value)" id="backgroundColor">
+					</div>
+					<div class="input-group">
+						<span class="input-group-addon">Color</span>
+						<input class="form-control jscolor" value="FFFFFF" onchange="changeParam('color', '#' + this.value)">
+					</div>
+					<div class="input-group">
+						<label class="input-group-addon" for="lineColor">Align</label>
+						<span class="input-group-addon">
+							<label class="form-check-label">
+								<input type="radio" class="form-check-input" name="textAlign" onchange="changeParam('textAlign', this.value)" id="left" value="left" />
+								L
+							</label>
+						</span>
+						<span class="input-group-addon" style="width: 100%;">
+							<label class="form-check-label" style="margin: 0 auto;">
+								<input type="radio" checked class="form-check-input" name="textAlign" onchange="changeParam('textAlign', this.value)" value="center" />
+								C
+							</label>
+						</span>
+						<span class="input-group-addon">
+							<label class="form-check-label">
+								<input type="radio" class="form-check-input" name="textAlign" onchange="changeParam('textAlign', this.value)" value="right" />
+								R
+							</label>
+						</span>
+					</div>
+					<div class="input-group">
+						<label class="input-group-addon">Padding</label>
+						<span class="input-group-addon" style="width: 100%">
+							<input oninput="changeParam('padding', +this.value)" type="range" min="0" max="20" value="3" step="1" class="slider">
+						</span>
+					</div>
+				</div>
+
+
+				<div class="form-group">
+					<label>Line</label>
+					<div class="input-group">
+						<label class="input-group-addon" for="lineColor">Color</label>
+						<span class="input-group-addon">
+							<label class="form-check-label">
+								<input type="checkbox" class="form-check-input" checked name="lineColor" onchange="changeParam('lineColor', undefined)" value="left" id="lineColorCheckbox"/>
+								Adapt
+							</label>
+						</span>
+						<input class="form-control jscolor" value="000000" onchange="changeParam('lineColor', '#' + this.value)" id="lineColor">
+					</div>
+					<div class="input-group">
+						<label class="input-group-addon">Width</label>
+						<span class="input-group-addon" style="width: 100%">
+							<input oninput="changeParam('lineWidth', +this.value)" step="0.1" type="range" min="1" max="10" value="2" class="slider">
+						</span>
+					</div>
+					<div class="input-group">
+						<label class="input-group-addon">Length</label>
+						<span class="input-group-addon" style="width: 100%">
+							<input oninput="changeParam('stretch', +this.value)" type="range" min="20" max="100" value="45" step="0.5" class="slider">
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-9">
+			<div>
+				<canvas id="pieChart"></canvas>
+			</div>
+		</div>
+	</div>
+
+	<script id="script-init">
+		var DATA_COUNT = 10;
+
+		Samples.srand(4);
+
+		Chart.helpers.merge(Chart.defaults.global, {
+			tooltips: false,
+			layout: {
+				padding: 10
+			},
+			elements: {
+				line: {
+					fill: false
+				},
+				point: {
+					hoverRadius: 7,
+					radius: 5
+				}
+			},
+			plugins: {
+				legend: false,
+				title: true
+			}
+		});
+
+		var params = {
+			display: true,
+			text: '%l %p \n VALUE: %v',
+			borderWidth: 2,
+			lineWidth: 2,
+			padding: 3,
+			color: 'white',
+			textAlign: 'center',
+			stretch: 45,
+			font: {
+				resizable: true
+			}
+		}
+	</script>
+
+	<script id="script-construct">
+		var chart = new Chart('pieChart', {
+			type: 'outlabeledPie',
+			data: {
+				labels: Samples.LABELS,
+				datasets: [{
+					backgroundColor: Samples.colors({
+						color: Samples.color(2),
+						count: DATA_COUNT
+					}),
+					data: Samples.numbers({
+						count: DATA_COUNT,
+						min: 0,
+						max: 100
+					})
+				}]
+			},
+			options: {
+				cutoutPercentage: 0,
+				plugins: {
+					outlabels: params
+				}
+			}
+		});
+	</script>
+
+	<script id="script-actions">
+		function changeParam(p, value) {
+			var arr = [
+				'lineColor',
+				'backgroundColor',
+				'borderColor'
+			];
+
+			if(~arr.indexOf(p)) {
+				if(value) {
+					document.getElementById(p + 'Checkbox').checked = false;
+				}
+
+				if(!document.getElementById(p + 'Checkbox').checked) {
+					value = '#' + document.getElementById(p).value;
+				}
+			}
+
+			params[p] = value;
+			chart.options.plugins.outlabels[p] = value;
+			chart.update();
+		}
+
+		function randomize() {
+			chart.data.datasets.forEach(function(dataset, i) {
+				dataset.backgroundColor = dataset.data.map(function(value) {
+					return Samples.color();
+				});
+				dataset.data = dataset.data.map(function(value) {
+					return Samples.rand(0, 100);
+				});
+			});
+
+			chart.update();
+		}
+
+		function addData() {
+			chart.data.labels.push(chart.data.labels.length);
+			chart.data.datasets.forEach(function(dataset, i) {
+				dataset.backgroundColor.push(Samples.color());
+				dataset.data.push(Samples.rand(0, 100));
+			});
+
+			chart.update();
+		}
+
+		function removeData() {
+			chart.data.labels.shift();
+			chart.data.datasets.forEach(function(dataset, i) {
+				dataset.backgroundColor.shift();
+				dataset.data.shift();
+			});
+
+			chart.update();
+		}
+	</script>
+</body>
+</html>
