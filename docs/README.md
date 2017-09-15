@@ -6,6 +6,7 @@ Highly customizable [Chart.js](http://www.chartjs.org/) plugin that displays lab
 
 ## Table of Contents
 
+{% include "SUMMARY.md" %}
 
 ## License
 
