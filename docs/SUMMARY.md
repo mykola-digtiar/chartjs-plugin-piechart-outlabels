@@ -2,4 +2,4 @@
 * [Quick Start](quickstart.md)
 * [Options](options.md)
 * [Formating & Styling](formatting.md)
-* [Sample](https://piechart-outlabels.netlify.com)
+* [Sample](https://piechart-outlabels.netlify.com/sample)

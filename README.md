@@ -8,10 +8,11 @@ Requires [Chart.js](https://github.com/chartjs/Chart.js/releases) **2.7.0** or l
 
 ## Documentation
 
-- [Installation]()
-- [Options](https://chartjs-plugin-datalabels.netlify.com/options)
-- [Formating]()
-- [Samples](https://piechart-outlabels.netlify.com/)
+- [Installation](https://piechart-outlabels.netlify.com/installation)
+- [Quick Start](https://piechart-outlabels.netlify.com/quickstart)
+- [Options](https://piechart-outlabels.netlify.com/options)
+- [Formating & Styling](https://piechart-outlabels.netlify.com/formatting)
+- [Sample](https://piechart-outlabels.netlify.com/sample)
 
 ## Development
 
