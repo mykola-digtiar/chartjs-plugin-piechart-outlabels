@@ -18,7 +18,7 @@ var pkg = require('./package.json');
 
 var argv = require('yargs')
 	.option('output', {alias: 'o', default: 'dist'})
-	.option('samples-dir', {default: 'samples'})
+	.option('sample-dir', {default: 'sample'})
 	.option('docs-dir', {default: 'docs'})
 	.option('www-dir', {default: 'www'})
 	.argv;
@@ -56,7 +56,7 @@ gulp.task('build', function() {
 
 gulp.task('lint', function() {
 	var files = [
-		'samples/**/*.js',
+		'sample/**/*.js',
 		'src/**/*.js',
 		'*.js'
 	];
@@ -81,33 +81,32 @@ gulp.task('docs', function(done) {
 	});
 });
 
-gulp.task('samples', function() {
+gulp.task('sample', function() {
 	// since we moved the dist files one folder up (package root), we need to rewrite
-	// samples src="../dist/ to src="../ and then copy them in the /samples directory.
+	// sample src="../dist/ to src="../ and then copy them in the /sample directory.
 	var out = path.join(argv.output);
-	return gulp.src('samples/**/*', {base: 'samples'})
+	return gulp.src('sample/**/*', {base: 'sample'})
 		.pipe(streamify(replace(/src="((?:\.\.\/)+)dist\//g, 'src="$1', {skipBinary: true})))
 		.pipe(gulp.dest(out));
 });
 
-gulp.task('package', ['build', 'samples'], function() {
+gulp.task('package', ['build', 'sample'], function() {
 	var out = argv.output;
 	return merge(
-		gulp.src(path.join(out, argv.samplesDir, '**/*'), {base: out}),
+		gulp.src(path.join(out, argv.sampleDir, '**/*'), {base: out}),
 		gulp.src([path.join(out, '*.js'), 'LICENSE'])
 	)
 	.pipe(zip(pkg.name + '.zip'))
 	.pipe(gulp.dest(out));
 });
 
-gulp.task('netlify', ['build', 'samples'], function() {
+gulp.task('netlify', ['build', 'sample'], function() {
 	var root = argv.output;
 	var out = path.join(root, argv.wwwDir);
 
 	return merge(
 		// gulp.src(path.join(root, argv.docsDir, '**/*'), {base: path.join(root, argv.docsDir)}),
-		gulp.src(path.join(root, '**/*'), {base: root})
-		// gulp.src(path.join(root, '*.js'))
+		gulp.src(path.join(root, '*'), {base: root})
 	)
 	.pipe(streamify(replace(/https?:\/\/chartjs-plugin-piechart-outlabels\.netlify\.com\/?/g, '/', {skipBinary: true})))
 	.pipe(gulp.dest(out));
