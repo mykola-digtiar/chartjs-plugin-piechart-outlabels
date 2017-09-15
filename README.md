@@ -11,7 +11,7 @@ Requires [Chart.js](https://github.com/chartjs/Chart.js/releases) **2.7.0** or l
 - [Installation]()
 - [Options](https://chartjs-plugin-datalabels.netlify.com/options)
 - [Formating]()
-- [Samples](https://chartjs-plugin-piechart-outlabels.netlify.com/)
+- [Samples](https://piechart-outlabels.netlify.com/)
 
 ## Development
 
