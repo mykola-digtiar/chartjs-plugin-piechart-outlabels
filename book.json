@@ -1,8 +1,6 @@
 {
 	"root": "./docs",
 	"author": "neckster",
-	"title": false,
-	"gitbook": "3.2.2",
 	"plugins": [
 		"-lunr",
 		"-search",
