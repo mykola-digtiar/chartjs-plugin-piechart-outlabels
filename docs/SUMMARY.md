@@ -1,0 +1,5 @@
+* [Installation](installation.md)
+* [Quick Start](quickstart.md)
+* [Options](options.md)
+* [Formating & Styling](formatting.md)
+* [Sample](https://piechart-outlabels.netlify.com)

@@ -29,3 +29,7 @@ The following commands will then be available from the repository root:
 ## License
 
 `chartjs-plugin-piechart-outlabels` is available under the [MIT license](LICENSE.md).
+
+## P.S.
+
+Highly inspirated by [chartjs-plugin-datalabels](https://github.com/chartjs/chartjs-plugin-datalabels)!

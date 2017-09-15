@@ -72,7 +72,9 @@ export default {
 		size: undefined,
 		style: undefined,
 		weight: null,
-		resizable: true
+		maxSize: null,
+		minSize: null,
+		resizable: true,
 	},
 
 	/**

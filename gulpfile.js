@@ -70,7 +70,7 @@ gulp.task('lint', function() {
 gulp.task('docs', function(done) {
 	var script = require.resolve('gitbook-cli/bin/gitbook.js');
 	var out = path.join(argv.output, argv.docsDir);
-	var cmd = process.execPath;
+	var cmd = 'node';
 
 	exec([cmd, script, 'install', './'].join(' ')).then(() => {
 		return exec([cmd, script, 'build', './', out].join(' '));
@@ -84,7 +84,7 @@ gulp.task('docs', function(done) {
 gulp.task('sample', function() {
 	// since we moved the dist files one folder up (package root), we need to rewrite
 	// sample src="../dist/ to src="../ and then copy them in the /sample directory.
-	var out = path.join(argv.output);
+	var out = path.join(argv.output, argv.sampleDir);
 	return gulp.src('sample/**/*', {base: 'sample'})
 		.pipe(streamify(replace(/src="((?:\.\.\/)+)dist\//g, 'src="$1', {skipBinary: true})))
 		.pipe(gulp.dest(out));
@@ -100,13 +100,14 @@ gulp.task('package', ['build', 'sample'], function() {
 	.pipe(gulp.dest(out));
 });
 
-gulp.task('netlify', ['build', 'sample'], function() {
+gulp.task('netlify', ['build', 'sample', 'docs'], function() {
 	var root = argv.output;
 	var out = path.join(root, argv.wwwDir);
 
 	return merge(
-		// gulp.src(path.join(root, argv.docsDir, '**/*'), {base: path.join(root, argv.docsDir)}),
-		gulp.src(path.join(root, '*'), {base: root})
+		gulp.src(path.join(root, argv.docsDir, '**/*'), {base: path.join(root, argv.docsDir)}),
+		gulp.src(path.join(root, argv.sampleDir, '**/*'), {base: root}),
+		gulp.src(path.join(root, '*.js'))
 	)
 	.pipe(streamify(replace(/https?:\/\/chartjs-plugin-piechart-outlabels\.netlify\.com\/?/g, '/', {skipBinary: true})))
 	.pipe(gulp.dest(out));
