@@ -1,0 +1,23 @@
+{
+	"root": "docs",
+	"author": "neckster",
+	"gitbook": "3.2.2",
+	"plugins": [
+		"-lunr",
+		"-search",
+		"search-plus",
+		"anchorjs"
+	],
+	"pluginsConfig": {
+		"anchorjs": {
+			"icon": "#",
+			"placement": "left",
+			"visible": "always"
+		},
+		"theme-default": {
+			"showLevel": false,
+			"styles": {
+			}
+		}
+	}
+}
