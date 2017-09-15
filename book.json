@@ -1,7 +1,11 @@
 {
-	"root": "docs",
+	"root": "./docs",
 	"author": "neckster",
 	"gitbook": "3.2.2",
+	"structure": {
+		"readme": "docs/README.md",
+		"summary": "docs/SUMMARY.md"
+	},
 	"plugins": [
 		"-lunr",
 		"-search",
