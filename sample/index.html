@@ -21,6 +21,9 @@
 				<button class="btn btn-info" onclick="randomize(this)">Randomize</button>
 				<button class="btn btn-success" onclick="addData(this)">Add Data</button>
 				<button class="btn btn-danger" onclick="removeData(this)">Remove Data</button>
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dataModel">
+					Update Dataset
+				</button>
 
 				<div class="form-group">
 					<label>Label</label>
@@ -128,13 +131,43 @@
 			<div>
 				<canvas id="pieChart"></canvas>
 			</div>
+
+			<!-- Modal -->
+			<div class="modal fade" id="dataModel" tabindex="-1" role="dialog" aria-labelledby="dataModelLabel" aria-hidden="true">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+						<h5 class="modal-title" id="dataModelLabel">Data Set Editor</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						</div>
+						<div class="modal-body">
+							<div id="modal-body" class="container-fluid"></div>
+						</div>
+						<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" onclick="updateDataSet(this)">Update</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
 
 	<script id="script-init">
 		var DATA_COUNT = 10;
 
 		Samples.srand(4);
+
+		var bgColors = Samples.colors({
+			color: Samples.color(2),
+			count: DATA_COUNT
+		});
 
 		Chart.helpers.merge(Chart.defaults.global, {
 			tooltips: false,
@@ -170,6 +203,60 @@
 				maxSize: 18
 			}
 		}
+
+		var data = Samples.numbers({
+			count: DATA_COUNT,
+			min: 0,
+			max: 100
+		});
+
+		
+
+		var body = `
+			<div class="row">
+				<div class="col">Label</div>
+				<div class="col">Value</div>
+				<div class="col">Bg</div>
+				<div class="col">BgLabel</div>
+				<div class="col">Border</div>
+				<div class="col">Line</div>
+				<div class="col">Font</div>
+				<div class="col-1"></div>
+			</div>
+		`;
+		for(var i = 0; i < data.length; ++i) {
+			body += `
+				<div class="row dataSet">
+					<div class="col input-group">
+						<input type="text" class="form-control" value="${Samples.LABELS[i]}" />
+					</div>
+					<div class="col input-group">
+						<input type="text" class="form-control" value="${data[i]}" />
+					</div>
+					<div class="col input-group">
+						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
+					</div>
+					<div class="col input-group">
+						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
+					</div>
+					<div class="col input-group">
+						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
+					</div>
+					<div class="col input-group">
+						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
+					</div>
+					<div class="col input-group">
+						<input class="form-control jscolor" value="FFFFFF">
+					</div>
+					<div class="col-1 input-group">
+						<button type="button" class="close" onclick="removeRow(this)">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</div>
+			`;
+		}
+		$('#modal-body').html(body);
 	</script>
 
 	<script id="script-construct">
@@ -178,19 +265,11 @@
 			data: {
 				labels: Samples.LABELS,
 				datasets: [{
-					backgroundColor: Samples.colors({
-						color: Samples.color(2),
-						count: DATA_COUNT
-					}),
-					data: Samples.numbers({
-						count: DATA_COUNT,
-						min: 0,
-						max: 100
-					})
+					backgroundColor: bgColors,
+					data: data
 				}]
 			},
 			options: {
-				cutoutPercentage: 0,
 				zoomOutPercentage: 60,
 				plugins: {
 					outlabels: params
@@ -200,6 +279,55 @@
 	</script>
 
 	<script id="script-actions">
+		function removeRow(el) {
+			var parents = $(el).parents();
+			parents[1].remove(parents[0]);
+		}
+
+		function updateDataSet(el) {
+			var LABELS = [];
+			var DATA = [];
+			var BGCOLORS = [];
+			var BGLCOLORS = [];
+			var BORDERCOLORS = [];
+			var LINECOLORS = [];
+			var FONTCOLORS = [];
+			
+			$('#dataModel').modal('toggle');
+			var els = Array.from($('.dataSet'));
+			els.forEach(function(el, i) {
+				var children = $(el).children();
+				console.log(children);
+				LABELS.push($(children[0]).children('input').val());
+				DATA.push($(children[1]).children('input').val());
+				BGCOLORS.push('#' + $(children[2]).children('input').val());
+				BGLCOLORS.push('#' + $(children[3]).children('input').val());
+				BORDERCOLORS.push('#' + $(children[4]).children('input').val());
+				LINECOLORS.push('#' + $(children[5]).children('input').val());
+				FONTCOLORS.push('#' + $(children[6]).children('input').val());
+			});
+
+			chart.data.labels = chart.data.labels.map(function(label, i) {
+				return LABELS[i];
+			});
+
+			chart.data.datasets.forEach(function(dataset, i) {
+
+				dataset.data = DATA;
+
+				dataset.backgroundColor = BGCOLORS;
+			});
+			
+			chart.options.plugins.outlabels.backgroundColor = BGLCOLORS;
+
+			chart.options.plugins.outlabels.lineColor = LINECOLORS;
+
+			chart.options.plugins.outlabels.borderColor = BORDERCOLORS;
+			chart.options.plugins.outlabels.color = FONTCOLORS;
+
+			chart.update();
+		}
+
 		function changeParam(p, value) {
 			var arr = [
 				'lineColor',
@@ -209,11 +337,11 @@
 
 			if(~arr.indexOf(p)) {
 				if(value) {
-					document.getElementById(p + 'Checkbox').checked = false;
+					$('#' + p + 'Checkbox').prop('checked', false);;
 				}
 
-				if(!document.getElementById(p + 'Checkbox').checked) {
-					value = '#' + document.getElementById(p).value;
+				if(!$('#' + p + 'Checkbox').is(':checked')) {
+					value = '#' + $('#' + p).val();
 				}
 			}
 

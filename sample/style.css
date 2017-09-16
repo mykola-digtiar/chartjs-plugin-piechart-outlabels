@@ -67,3 +67,11 @@ html, body {
 .input-group {
 	margin-top: 10px;
 }
+
+.modal {
+	z-index: 999 !important;
+}
+
+.modal-backdrop {
+	z-index: 998 !important;
+}

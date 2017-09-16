@@ -54,7 +54,7 @@ export default {
 				lineWidth: resolve([config.lineWidth, 2], context, index),
 				lineColor: resolve([config.lineColor, defaults.lineColor, 'black'], context, index),
 				color: resolve([config.color, 'white'], context, index),
-				font: helpers.parseFont(resolve([config.font, {resizable: true}])),
+				font: helpers.parseFont(resolve([config.font, {resizable: true}]), ctx.canvas.style.height.slice(0, -2)),
 				padding: helpers.options.toPadding(resolve([config.padding, 0], context, index)),
 				textAlign: resolve([config.textAlign, 'left'], context, index),
 			};
