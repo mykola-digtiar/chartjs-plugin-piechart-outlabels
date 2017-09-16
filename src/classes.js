@@ -12,8 +12,7 @@ export default {
 		var resolve = Chart.helpers.options.resolve;
 		// Check whether the label should be displayed
 		if (!resolve([config.display, true], context, index)) {
-			delete this;
-			return null;
+			throw new Error('Label display property is set to false.');
 		}
 		// Init text
 		var value = context.dataset.data[index];
@@ -28,7 +27,7 @@ export default {
 
 		// If no lines => nothng to display
 		if (!lines || !lines.length) {
-			return null;
+			throw new Error('No text to show.');
 		}
 
 		// Remove unnecessary spaces

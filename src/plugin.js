@@ -21,6 +21,7 @@ var custom = Chart.controllers.doughnut.extend({
 		var offset = {x: 0, y: 0};
 		var meta = me.getMeta();
 		var cutoutPercentage = opts.cutoutPercentage;
+		var zoomOutPercentage = opts.zoomOutPercentage || 50;
 		var circumference = opts.circumference;
 
 		// If the chart's circumference isn't a full circle, calculate minSize as a ratio of the width/height of the arc
@@ -54,8 +55,8 @@ var custom = Chart.controllers.doughnut.extend({
 		me.outerRadius = chart.outerRadius - (chart.radiusLength * me.getRingIndex(me.index));
 		me.innerRadius = Math.max(me.outerRadius - chart.radiusLength, 0);
 
-		me.outerRadius *= 0.50;
-		me.innerRadius *= 0.50;
+		me.outerRadius *= zoomOutPercentage / 100;
+		me.innerRadius *= zoomOutPercentage / 100;
 
 		Chart.helpers.each(meta.data, function(arc, index) {
 			me.updateElement(arc, index, reset);
@@ -119,33 +120,39 @@ Chart.plugins.register({
 		var display = config && config.display;
 		var elements = args.meta.data || [];
 		var ctx = chart.ctx;
-		var el, label, percent, newLabel;
+		var el, label, percent, newLabel, context, i;
 
 		ctx.save();
 
-		for (var i = 0; i < elements.length; ++i) {
+		for (i = 0; i < elements.length; ++i) {
 			el = elements[i];
 			label = el[LABEL_KEY];
 			percent = dataset.data[i] / args.meta.total;
+			newLabel = null;
 
-			newLabel = (display && el && !el.hidden) ? new classes.OutLabel(
-				el,
-				i,
-				ctx,
-				config,
-				{
-					chart: chart,
-					dataIndex: i,
-					dataset: dataset,
-					labels: labels,
-					datasetIndex: args.index,
-					percent: percent
+			if (display && el && !el.hidden) {
+				try {
+					context = {
+						chart: chart,
+						dataIndex: i,
+						dataset: dataset,
+						labels: labels,
+						datasetIndex: args.index,
+						percent: percent
+					};
+					newLabel = new classes.OutLabel(el, i, ctx, config, context);
+				} catch(e) {
+					newLabel = null;
 				}
-			) : null;
+			}
 
-			newLabel = !helpers.isEmptyObj(newLabel) ? newLabel : null;
-
-			if (label && newLabel && !options.font.changed && (label.label === newLabel.label) && (label.encodedText === newLabel.encodedText)) {
+			if (
+				label && 
+				newLabel && 
+				!options.font.changed && 
+				(label.label === newLabel.label) && 
+				(label.encodedText === newLabel.encodedText)
+			) {
 				newLabel.offset = label.offset;
 			}
 
