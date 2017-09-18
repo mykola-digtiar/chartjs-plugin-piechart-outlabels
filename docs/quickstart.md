@@ -66,7 +66,7 @@ Initialize chart.
 			}]
 		},
 		options: {
-			cutoutPercentage: 0, // SET TO 0 IF PIE TYPE
+			zoomOutPercentage: 55, // makes chart 40% smaller (50% by default, if the preoprty is undefined)
 			plugins: {
 				legend: false,
 				outlabels: {
@@ -110,7 +110,18 @@ Initialize chart.
 			var chart = new Chart('outlabeledChart', {
 				type: 'outlabeledPie',
 				data: {
-					labels: ['ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN'],
+					labels: [
+						'ONE',
+						'TWO',
+						'THREE',
+						'FOUR',
+						'FIVE',
+						'SIX',
+						'SEVEN',
+						'EIGHT',
+						'NINE',
+						'TEN'
+					],
 					datasets: [{
 						backgroundColor: [
 							'#FF3784',
@@ -128,11 +139,10 @@ Initialize chart.
 					}]
 				},
 				options: {
-					cutoutPercentage: 0, // SET TO 0 IF PIE
+					zoomOutPercentage: 55, // makes chart 55% smaller (50% by default, if the preoprty is undefined)
 					plugins: {
 						legend: false,
 						outlabels: {
-							display: true,
 							text: '%l %p',
 							color: 'white',
 							stretch: 45,
