@@ -1,15 +1,11 @@
 'use strict';
 
 export default {
-	center: function(arc, pos, stretch) {
+	center: function(arc, stretch) {
 		var angle = (arc.startAngle + arc.endAngle) / 2;
 		var cosA = Math.cos(angle);
 		var sinA = Math.sin(angle);
 		var d = arc.outerRadius;
-
-		// if (pos === 'in') {
-		// 	d = arc.innerRadius + (arc.outerRadius - arc.innerRadius) / 2;
-		// }
 
 		var stretchedD = d + stretch;
 		return {

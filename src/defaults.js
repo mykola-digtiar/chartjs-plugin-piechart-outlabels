@@ -5,49 +5,61 @@
 'use strict';
 
 export default {
+
 	LABEL_KEY: '$outlabels',
+
 	/**
-	 * The color used to draw the background of the surrounding frame.
+	 * The color used to draw the background of the label rect.
 	 * @member {String|Array|Function|null}
-	 * @default null (no background)
+	 * @default null (adaptive background)
 	 */
 	backgroundColor: function(context) {
 		return context.dataset.backgroundColor;
 	},
 
 	/**
-	 * The color used to draw the border of the surrounding frame.
+	 * The color used to draw the border of the label rect.
 	 * @member {String|Array|Function|null}
-	 * @default null (no border)
+	 * @default null (adaptive border color)
 	 */
 	borderColor: function(context) {
 		return context.dataset.backgroundColor;
 	},
 
+	/**
+	 * The color used to draw the line between label and arc of the chart.
+	 * @member {String|Array|Function|null}
+	 * @default null (adaptive line color)
+	 */
 	lineColor: function(context) {
 		return context.dataset.backgroundColor;
 	},
 
 	/**
-	 * The border radius used to add rounded corners to the surrounding frame.
+	 * The border radius used to add rounded corners to the label rect.
 	 * @member {Number|Array|Function}
 	 * @default 0 (not rounded)
 	 */
-	borderRadius: 2,
+	borderRadius: 0,
 
 	/**
 	 * The border width of the surrounding frame.
 	 * @member {Number|Array|Function}
 	 * @default 0 (no border)
 	 */
-	borderWidth: 2,
+	borderWidth: 0,
 
+	/**
+	 * The width (thickness) of the line between label and chart arc.
+	 * @member {Number|Array|Function}
+	 * @default 2 
+	 */
 	lineWidth: 2,
 
 	/**
 	 * The color used to draw the label text.
 	 * @member {String|Array|Function}
-	 * @default undefined (use Chart.defaults.global.defaultFontColor)
+	 * @default white
 	 */
 	color: 'white',
 
@@ -65,6 +77,9 @@ export default {
 	 * @prop {Boolean} font.size - defaults to Chart.defaults.global.defaultFontSize
 	 * @prop {Boolean} font.style - defaults to Chart.defaults.global.defaultFontStyle
 	 * @prop {Boolean} font.weight - defaults to 'normal'
+	 * @prop {Boolean} font.maxSize - defaults to undefined (unlimited)
+	 * @prop {Boolean} font.minSize - defaults to undefined (unlimited)
+	 * @prop {Boolean} font.resizable - defaults to true
 	 * @default Chart.defaults.global.defaultFont.*
 	 */
 	font: {
@@ -104,11 +119,28 @@ export default {
 	/**
 	 * Text alignment for multi-lines labels ('left'|'right'|'start'|'center'|'end').
 	 * @member {String|Array|Function}
-	 * @default 'start'
+	 * @default 'center'
 	 */
 	textAlign: 'center',
 
+	/**
+	 * The length of the line between label and chart arc.
+	 * @member {Number|Array|Function|undefined}
+	 * @default 40
+	 */
 	stretch: 40,
 
-	text: '%l %p'
+	/**
+	 * The text of the label.
+	 * @member {String}
+	 * @default '%l %p' (label name and value percentage)
+	 */
+	text: '%l %p',
+
+	/**
+	 * The level of zoom (out) for pie/doughnut chart in percent.
+	 * @member {Number}
+	 * @default 50 (%)
+	 */
+	zoomOutPercentage: 50
 };

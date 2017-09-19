@@ -231,7 +231,7 @@ export default {
 
 
 		this.update = function(view, elements, max) {
-			this.center = positioners.center(view, 'out', this.stretch);
+			this.center = positioners.center(view, this.stretch);
 			this.moveLabelToOffset();
 
 			this.center.x += this.offset.x;

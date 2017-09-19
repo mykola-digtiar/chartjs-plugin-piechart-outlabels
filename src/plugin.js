@@ -68,6 +68,7 @@ Chart.plugins.register({
 				}
 			}
 
+			console.log(newLabel, label);
 			if (
 				label && 
 				newLabel && 
@@ -75,6 +76,7 @@ Chart.plugins.register({
 				(label.label === newLabel.label) && 
 				(label.encodedText === newLabel.encodedText)
 			) {
+				console.log('SAME OFFSET!!!');
 				newLabel.offset = label.offset;
 			}
 
