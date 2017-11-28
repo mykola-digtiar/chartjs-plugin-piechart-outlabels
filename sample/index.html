@@ -191,7 +191,16 @@
 
 		var params = {
 			display: true,
-			text: '%l %p (%p.3) \n VALUE: %v (%v.3)',
+			text: [
+				'%l (%p.3) \n VALUE: (%v.3)',
+				'%l (%p) \n VALUE: (%v)',
+				'SIMPLE VALUE \n => %v',
+				'VALUE WITH PRECISION 4 \n => %v.4',
+				'SIMPLE PERCENT \n => %p',
+				'PERCENT WITH PRECISION 3 \n => %p.3',
+				'JUST LABEL \n => %l',
+				'JUST TEXT'
+			],
 			borderWidth: 2,
 			lineWidth: 2,
 			padding: 3,

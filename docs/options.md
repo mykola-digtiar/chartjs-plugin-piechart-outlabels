@@ -10,7 +10,9 @@ Available options:
 
 | Name | Type | [Scriptable](#scriptable-options) | [Indexable](#indexable-options) |  Default
 | ---- | ---- | :----: | :----: | ----
-| `text` | `String` | - | - | `'%l %p'`
+| `text` | `String` | Yes | Yes | `'%l %p'`
+| `percentPrecision` | `Number` | - | - | `1`
+| `valuePrecision` | `Number` | - | - | `3`
 | `backgroundColor` | [`Style`](#style-options)/`null` | Yes | Yes | `Same as pie arc color (adaptive)`
 | `borderColor` | [`Style`](#style-options)/`null` | Yes | Yes | `Same as pie arc color (adaptive)`
 | `borderRadius` | `Number` | Yes | Yes | `2`
