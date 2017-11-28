@@ -5,6 +5,14 @@ import defaults from './defaults';
 
 export default {
 	init: function() {
+		/* HOTFIX: fix trunc function for IE-11 */
+		if (!Math.trunc) {
+			Math.trunc = function(v) {
+				v = +v;
+				return (v - v % 1)   ||   (!isFinite(v) || v === 0 ? v : v < 0 ? -0 : 0);
+			};
+		}
+
 		Chart.defaults.outlabeledDoughnut = Chart.defaults.doughnut;
 		Chart.defaults.outlabeledPie = Chart.defaults.pie;
 

@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="./style.css">
 	<link rel="icon" type="image/ico" href="./favicon.ico">
 	<script src="https://rawgit.com/chartjs/chartjs.github.io/master/dist/master/Chart.min.js"></script>
-	<script src="../chartjs-plugin-piechart-outlabels.js"></script>
+	<script src="../dist/chartjs-plugin-piechart-outlabels.js"></script>
 	<script src="./utils.js"></script>
 	<script src="./jscolor.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
@@ -191,7 +191,7 @@
 
 		var params = {
 			display: true,
-			text: '%l %p \n VALUE: %v',
+			text: '%l %p (%p.3) \n VALUE: %v (%v.3)',
 			borderWidth: 2,
 			lineWidth: 2,
 			padding: 3,
@@ -201,7 +201,9 @@
 				resizable: true,
 				minSize: 12,
 				maxSize: 18
-			}
+			},
+			valuePrecision: 1,
+			percentPrecision: 2
 		}
 
 		var data = Samples.numbers({
@@ -212,49 +214,9 @@
 
 		
 
-		var body = `
-			<div class="row">
-				<div class="col">Label</div>
-				<div class="col">Value</div>
-				<div class="col">Bg</div>
-				<div class="col">BgLabel</div>
-				<div class="col">Border</div>
-				<div class="col">Line</div>
-				<div class="col">Font</div>
-				<div class="col-1"></div>
-			</div>
-		`;
+		var body = '<div class="row"><div class="col">Label</div><div class="col">Value</div><div class="col">Bg</div><div class="col">BgLabel</div><div class="col">Border</div><div class="col">Line</div><div class="col">Font</div><div class="col-1"></div></div>';
 		for(var i = 0; i < data.length; ++i) {
-			body += `
-				<div class="row dataSet">
-					<div class="col input-group">
-						<input type="text" class="form-control" value="${Samples.LABELS[i]}" />
-					</div>
-					<div class="col input-group">
-						<input type="text" class="form-control" value="${data[i]}" />
-					</div>
-					<div class="col input-group">
-						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
-					</div>
-					<div class="col input-group">
-						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
-					</div>
-					<div class="col input-group">
-						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
-					</div>
-					<div class="col input-group">
-						<input class="form-control jscolor" value="${bgColors[i].slice(1)}">
-					</div>
-					<div class="col input-group">
-						<input class="form-control jscolor" value="FFFFFF">
-					</div>
-					<div class="col-1 input-group">
-						<button type="button" class="close" onclick="removeRow(this)">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-				</div>
-			`;
+			body += '<div class="row dataSet"><div class="col input-group"><input type="text" class="form-control" value="${Samples.LABELS[i]}" /></div><div class="col input-group"><input type="text" class="form-control" value="${data[i]}" /></div><div class="col input-group"><input class="form-control jscolor" value="${bgColors[i].slice(1)}"></div><div class="col input-group"><input class="form-control jscolor" value="${bgColors[i].slice(1)}"></div><div class="col input-group"><input class="form-control jscolor" value="${bgColors[i].slice(1)}"></div><div class="col input-group"><input class="form-control jscolor" value="${bgColors[i].slice(1)}"></div><div class="col input-group"><input class="form-control jscolor" value="FFFFFF"></div><div class="col-1 input-group"><button type="button" class="close" onclick="removeRow(this)"><span aria-hidden="true">&times;</span></button></div></div>';
 		}
 		$('#modal-body').html(body);
 	</script>
@@ -297,7 +259,6 @@
 			var els = Array.from($('.dataSet'));
 			els.forEach(function(el, i) {
 				var children = $(el).children();
-				console.log(children);
 				LABELS.push($(children[0]).children('input').val());
 				DATA.push($(children[1]).children('input').val());
 				BGCOLORS.push('#' + $(children[2]).children('input').val());

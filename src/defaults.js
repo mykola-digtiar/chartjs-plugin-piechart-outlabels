@@ -142,5 +142,19 @@ export default {
 	 * @member {Number}
 	 * @default 50 (%)
 	 */
-	zoomOutPercentage: 50
+	zoomOutPercentage: 50,
+
+	/**
+	 * The count of numbers after the point separator for float values of percent property
+	 * @member {Number}
+	 * @default 1
+	 */
+	percentPrecision: 1,
+	
+	/**
+	 * The count of numbers after the point separator for float values of value property
+	 * @member {Number}
+	 * @default 3
+	 */
+	valuePrecision: 3
 };

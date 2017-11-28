@@ -17,10 +17,21 @@ export default {
 		// Init text
 		var value = context.dataset.data[index];
 		var label = context.labels[index];
-		var text = helpers.valueOrDefault(config.text, '%v %p');
+		var text = resolve([config.text, defaults.text], context, index);
+
 		text = text.replace(/%l/gi, label);
-		text = text.replace(/%v/gi, value);
-		text = text.replace(/%p/gi, (context.percent * 100).toFixed(1) + '%');
+		
+		text.match(/%v\.?(\d*)/gi).map(function(val) {
+			return +val.replace(/%v\./gi, '') || config.valuePrecision || defaults.valuePrecision;
+		}).forEach(function(val) {
+			text = text.replace(/%v\.?(\d*)/i, (context.percent * 100).toFixed(val));
+		});
+
+		text.match(/%p\.?(\d*)/gi).map(function(val) {
+			return +val.replace(/%p\./gi, '') || config.percentPrecision || defaults.percentPrecision;
+		}).forEach(function(val) {
+			text = text.replace(/%p\.?(\d*)/i, (context.percent * 100).toFixed(val) + '%');
+		});
 
 		// Count lines
 		var lines = text.match(/[^\r\n]+/g);
