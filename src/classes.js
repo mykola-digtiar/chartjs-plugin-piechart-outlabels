@@ -24,14 +24,24 @@ export default {
 
 		/* Replace value marker with possible precision value */
 		(text.match(/%v\.?(\d*)/gi) || []).map(function(val) {
-			return +val.replace(/%v\./gi, '') || config.valuePrecision || defaults.valuePrecision;
+			var prec = val.replace(/%v\./gi, '');
+			if (prec.length) {
+				return +prec;
+			} else {
+				return config.valuePrecision || defaults.valuePrecision;
+			}
 		}).forEach(function(val) {
 			text = text.replace(/%v\.?(\d*)/i, value.toFixed(val));
 		});
 
 		/* Replace percent marker with possible precision value */
 		(text.match(/%p\.?(\d*)/gi) || []).map(function(val) {
-			return +val.replace(/%p\./gi, '') || config.percentPrecision || defaults.percentPrecision;
+			var prec = val.replace(/%p\./gi, '');
+			if (prec.length) {
+				return +prec;
+			} else  {
+				return config.percentPrecision || defaults.percentPrecision;
+			}
 		}).forEach(function(val) {
 			text = text.replace(/%p\.?(\d*)/i, (context.percent * 100).toFixed(val) + '%');
 		});
