@@ -26,7 +26,7 @@ export default {
 		(text.match(/%v\.?(\d*)/gi) || []).map(function(val) {
 			return +val.replace(/%v\./gi, '') || config.valuePrecision || defaults.valuePrecision;
 		}).forEach(function(val) {
-			text = text.replace(/%v\.?(\d*)/i, (context.percent * 100).toFixed(val));
+			text = text.replace(/%v\.?(\d*)/i, value.toFixed(val));
 		});
 
 		/* Replace percent marker with possible precision value */
