@@ -503,9 +503,9 @@ var classes = {
 				offset = 5;
 			}
 
-			return	this.labelRect.x - offset <= point.x && point.x <= this.labelRect.x + this.labelRect.width + offset
+			return	this.textRect.x - offset <= point.x && point.x <= this.textRect.x + this.textRect.width + offset
 							&&
-						this.labelRect.y - offset <= point.y && point.y <= this.labelRect.y + this.labelRect.height + offset;
+						this.textRect.y - offset <= point.y && point.y <= this.textRect.y + this.textRect.height + offset;
 		};
 
 
@@ -629,9 +629,9 @@ var classes = {
 				}
 
 				if (!valid) {
-					this.center.x -= 2;
+					this.center.x -= 1.5;
 					this.center.y += .5;
-					this.center.copy.x -= 2;
+					this.center.copy.x -= 1.5;
 					this.center.copy.y += .5;
 				}
 			}
