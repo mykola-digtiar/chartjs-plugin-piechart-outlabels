@@ -39,7 +39,7 @@ export default {
 			var prec = val.replace(/%p\./gi, '');
 			if (prec.length) {
 				return +prec;
-			} else  {
+			} else {
 				return config.percentPrecision || defaults.percentPrecision;
 			}
 		}).forEach(function(val) {
@@ -283,18 +283,14 @@ export default {
 							valid = false;
 							break;
 						}
-
-						if(this.containsPoint(elPoints[p])) {
-							valid = false;
-							break;
-						}
 					}
 				}
 
 				if (!valid) {
-					this.center = positioners.moveFromAnchor(this.center, 1);
-					this.center.x += this.offset.x;
-					this.center.y += this.offset.y;
+					this.center.x -= 2;
+					this.center.y += .5;
+					this.center.copy.x -= 2;
+					this.center.copy.y += .5;
 				}
 			}
 		};
