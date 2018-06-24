@@ -39,7 +39,7 @@ export default {
 			var prec = val.replace(/%p\./gi, '');
 			if (prec.length) {
 				return +prec;
-			} else  {
+			} else {
 				return config.percentPrecision || defaults.percentPrecision;
 			}
 		}).forEach(function(val) {
@@ -161,9 +161,9 @@ export default {
 				offset = 5;
 			}
 
-			return	this.labelRect.x - offset <= point.x && point.x <= this.labelRect.x + this.labelRect.width + offset
+			return	this.textRect.x - offset <= point.x && point.x <= this.textRect.x + this.textRect.width + offset
 							&&
-						this.labelRect.y - offset <= point.y && point.y <= this.labelRect.y + this.labelRect.height + offset;
+						this.textRect.y - offset <= point.y && point.y <= this.textRect.y + this.textRect.height + offset;
 		};
 
 
@@ -283,18 +283,14 @@ export default {
 							valid = false;
 							break;
 						}
-
-						if(this.containsPoint(elPoints[p])) {
-							valid = false;
-							break;
-						}
 					}
 				}
 
 				if (!valid) {
-					this.center = positioners.moveFromAnchor(this.center, 1);
-					this.center.x += this.offset.x;
-					this.center.y += this.offset.y;
+					this.center.x -= 1.5;
+					this.center.y += .5;
+					this.center.copy.x -= 1.5;
+					this.center.copy.y += .5;
 				}
 			}
 		};
