@@ -9,7 +9,7 @@ var LABEL_KEY = defaults.LABEL_KEY;
 
 export default {
 	OutLabel: function(el, index, ctx, config, context) {
-		var resolve = Chart.helpers.options.resolve;
+		var resolve = Chart.helpers.resolve;
 		// Check whether the label should be displayed
 		if (!resolve([config.display, true], context, index)) {
 			throw new Error('Label display property is set to false.');
@@ -27,9 +27,8 @@ export default {
 			var prec = val.replace(/%v\./gi, '');
 			if (prec.length) {
 				return +prec;
-			} else {
-				return config.valuePrecision || defaults.valuePrecision;
 			}
+			return config.valuePrecision || defaults.valuePrecision;
 		}).forEach(function(val) {
 			text = text.replace(/%v\.?(\d*)/i, value.toFixed(val));
 		});
@@ -39,9 +38,8 @@ export default {
 			var prec = val.replace(/%p\./gi, '');
 			if (prec.length) {
 				return +prec;
-			} else  {
-				return config.percentPrecision || defaults.percentPrecision;
 			}
+			return config.percentPrecision || defaults.percentPrecision;
 		}).forEach(function(val) {
 			text = text.replace(/%p\.?(\d*)/i, (context.percent * 100).toFixed(val) + '%');
 		});
@@ -79,7 +77,7 @@ export default {
 				lineColor: resolve([config.lineColor, defaults.lineColor, 'black'], context, index),
 				color: resolve([config.color, 'white'], context, index),
 				font: helpers.parseFont(resolve([config.font, {resizable: true}]), ctx.canvas.style.height.slice(0, -2)),
-				padding: helpers.options.toPadding(resolve([config.padding, 0], context, index)),
+				padding: helpers.toPadding(resolve([config.padding, 0], context, index)),
 				textAlign: resolve([config.textAlign, 'left'], context, index),
 			};
 
@@ -93,7 +91,8 @@ export default {
 			};
 			this.predictedOffset = this.offset;
 
-			var angle = -((el._model.startAngle + el._model.endAngle) / 2) / (Math.PI);
+
+			var angle = -((el.startAngle + el.endAngle) / 2) / (Math.PI);
 			var val = Math.abs(angle - Math.trunc(angle));
 
 			if (val > 0.45 && val < 0.55) {
@@ -109,14 +108,11 @@ export default {
 
 		/* COMPUTING RECTS PART */
 		this.computeLabelRect = function() {
-			var width = this.textRect.width + 2 * this.style.borderWidth;
+			var width = this.textRect.width + 2 * this.style.borderWidth + this.style.padding.left * 2;
 			var height = this.textRect.height + 2 * this.style.borderWidth;
 
-			var x = this.textRect.x - this.style.padding.left - this.style.borderWidth;
-			var y = this.textRect.y - this.style.padding.top - this.style.borderWidth;
-
-			width += this.style.padding.width;
-			height += this.style.padding.height;
+			var x = this.textRect.x - this.style.borderWidth;
+			var y = this.textRect.y - this.style.borderWidth;
 
 			return {
 				x: x,
@@ -125,13 +121,15 @@ export default {
 				height: height
 			};
 		};
+		const pad = 60;
 
 		this.computeTextRect = function() {
+			const shift = (this.center.x - this.center.copy.x < 0 ? -pad : pad);
 			return {
-				x: this.center.x - (this.size.width / 2),
-				y: this.center.y - (this.size.height / 2),
+				x: this.center.x - (this.size.width / 2) - this.style.padding.left + shift,
+				y: this.center.y - (this.size.height / 2) - this.style.padding.top,
 				width: this.size.width,
-				height: this.size.height
+				height: this.size.height + this.style.padding.height
 			};
 		};
 
@@ -198,11 +196,10 @@ export default {
 			for (idx = 0; idx < ilen; ++idx) {
 				this.ctx.fillText(
 					this.lines[idx],
-					Math.round(x),
-					Math.round(y),
+					Math.round(x) + this.style.padding.left,
+					Math.round(y) + this.style.padding.top,
 					Math.round(this.textRect.width)
 				);
-
 				y += lh;
 			}
 		};
@@ -210,7 +207,7 @@ export default {
 		// Draw label box
 		this.drawLabel = function() {
 			ctx.beginPath();
-			helpers.canvas.roundedRect(
+			this.ctx.fillRect(
 				this.ctx,
 				Math.round(this.labelRect.x),
 				Math.round(this.labelRect.y),
@@ -233,6 +230,13 @@ export default {
 			}
 		};
 
+		this.ccw = function(A, B, C) {
+			return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+		};
+
+		this.intersects = function(A, B, C, D) {
+			return this.ccw(A, C, D) !== this.ccw(B, C, D) && this.ccw(A, B, C) !== this.ccw(A, B, D);
+		};
 
 		this.drawLine = function() {
 			this.ctx.save();
@@ -245,6 +249,18 @@ export default {
 			this.ctx.lineTo(this.center.copy.x, this.center.copy.y);
 			this.ctx.stroke();
 
+			this.ctx.beginPath();
+			this.ctx.moveTo(this.center.copy.x, this.center.copy.y);
+			const xOffset = this.textRect.width + this.style.padding.width;
+			const intersect = this.intersects(this.textRect, {
+				x: this.textRect.x + this.textRect.width,
+				y: this.textRect.y + this.textRect.height,
+			}, this.center.copy, {
+				x: this.textRect.x,
+				y: this.textRect.y + this.textRect.height / 2
+			});
+			this.ctx.lineTo(this.textRect.x + (intersect ? xOffset : 0), this.textRect.y + this.textRect.height / 2);
+			this.ctx.stroke();
 			this.ctx.restore();
 		};
 
@@ -284,7 +300,7 @@ export default {
 							break;
 						}
 
-						if(this.containsPoint(elPoints[p])) {
+						if (this.containsPoint(elPoints[p])) {
 							valid = false;
 							break;
 						}

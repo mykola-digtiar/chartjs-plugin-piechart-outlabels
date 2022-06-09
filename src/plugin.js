@@ -1,7 +1,7 @@
 'use strict';
 
 import Chart from 'chart.js';
-import outlabeledCharts from './outlabeledCharts'
+import outlabeledCharts from './outlabeledCharts';
 import defaults from './defaults.js';
 
 import classes from './classes.js';
@@ -10,7 +10,7 @@ import helpers from './helpers';
 
 outlabeledCharts.init();
 
-Chart.defaults.global.plugins.outlabels = defaults;
+Chart.defaults.plugins.outlabels = defaults;
 
 var LABEL_KEY = defaults.LABEL_KEY;
 
@@ -28,10 +28,10 @@ function configure(dataset, options) {
 	return helpers.merge(config, [options, override]);
 }
 
-Chart.plugins.register({
+Chart.register({
 	id: 'outlabels',
 
-	resize: function(chart, size, options) {
+	resize: function(chart) {
 		chart.sizeChanged = true;
 	},
 
@@ -43,7 +43,6 @@ Chart.plugins.register({
 		var elements = args.meta.data || [];
 		var ctx = chart.ctx;
 		var el, label, percent, newLabel, context, i;
-
 		ctx.save();
 
 		for (i = 0; i < elements.length; ++i) {
@@ -63,22 +62,20 @@ Chart.plugins.register({
 						percent: percent
 					};
 					newLabel = new classes.OutLabel(el, i, ctx, config, context);
-				} catch(e) {
+				} catch (e) {
 					newLabel = null;
 				}
 			}
 
 			if (
-				label && 
-				newLabel && 
-				!chart.sizeChanged &&
-				(label.label === newLabel.label) && 
-				(label.encodedText === newLabel.encodedText)
+				label && newLabel && !chart.sizeChanged &&
+				(label.label === newLabel.label) && (label.encodedText === newLabel.encodedText)
 			) {
 				newLabel.offset = label.offset;
 			}
 
 			el[LABEL_KEY] = newLabel;
+
 		}
 
 		ctx.restore();
@@ -99,7 +96,7 @@ Chart.plugins.register({
 			}
 
 			if (i < elements.length) {
-				label.update(el._view, elements, i);
+				label.update(el, elements, i);
 				label.drawLine(ctx);
 			} else {
 				label.draw(ctx);

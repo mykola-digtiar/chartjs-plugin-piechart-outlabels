@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="./style.css">
 	<link rel="icon" type="image/ico" href="./favicon.ico">
-	<script src="https://rawgit.com/chartjs/chartjs.github.io/master/dist/master/Chart.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
 	<script src="../dist/chartjs-plugin-piechart-outlabels.js"></script>
 	<script src="./utils.js"></script>
 	<script src="./jscolor.min.js"></script>
@@ -45,7 +45,7 @@
 					<div class="input-group">
 						<label class="input-group-addon">Border Width</label>
 						<span class="input-group-addon" style="width: 100%">
-							<input oninput="changeParam('borderWidth', +this.value)" type="range" min="0" max="20" value="2" step="1" class="slider">
+							<input oninput="changeParam('borderWidth', +this.value)" type="range" min="0" max="20" value="0" step="1" class="slider">
 						</span>
 					</div>
 
@@ -64,7 +64,7 @@
 								Adapt
 							</label>
 						</span>
-						<input class="form-control jscolor" value="FFFFFF" onchange="changeParam('backgroundColor', '#' + this.value)" id="backgroundColor">
+						<input class="form-control jscolor" value="transparent" onchange="changeParam('backgroundColor', '#' + this.value)" id="backgroundColor">
 					</div>
 					<div class="input-group">
 						<span class="input-group-addon">Color</span>
@@ -129,7 +129,7 @@
 		</div>
 		<div class="col-9">
 			<div>
-				<canvas id="pieChart"></canvas>
+				<canvas id="pieChart" style="height:100vh;"></canvas>
 			</div>
 
 			<!-- Modal -->
@@ -169,10 +169,11 @@
 			count: DATA_COUNT
 		});
 
-		Chart.helpers.merge(Chart.defaults.global, {
-			tooltips: false,
+		Chart.helpers.merge(Chart.defaults, {
+			responsive: false,
 			layout: {
 				padding: 10
+
 			},
 			elements: {
 				line: {
@@ -184,35 +185,31 @@
 				}
 			},
 			plugins: {
-				legend: false,
-				title: true
+				legend: { display: false },
+				title: true,
+				tooltip: {
+					enabled: false,
+				},
 			}
 		});
 
 		var params = {
 			display: true,
-			text: [
-				'%l (%p.3) \n VALUE: (%v.3)',
-				'%l (%p) \n VALUE: (%v)',
-				'SIMPLE VALUE \n => %v',
-				'VALUE WITH PRECISION 4 \n => %v.4',
-				'SIMPLE PERCENT \n => %p',
-				'PERCENT WITH PRECISION 3 \n => %p.3',
-				'JUST LABEL \n => %l',
-				'JUST TEXT'
-			],
-			borderWidth: 2,
-			lineWidth: 2,
-			padding: 3,
-			textAlign: 'center',
+			lineWidth: 1,
+			padding: 8,
+			textAlign: 'left',
 			stretch: 45,
 			font: {
 				resizable: true,
 				minSize: 12,
-				maxSize: 18
+				maxSize: 16
 			},
-			valuePrecision: 1,
-			percentPrecision: 2
+			color: '#565656',
+			lineColor: '#BFBFBF',
+			backgroundColor: 'transparent',
+			valuePrecision: 0,
+			percentPrecision: 2,
+			text: '%v (%p)',
 		}
 
 		var data = Samples.numbers({
@@ -232,7 +229,7 @@
 
 	<script id="script-construct">
 		var chart = new Chart('pieChart', {
-			type: 'outlabeledPie',
+			type: 'outlabeledDoughnut',
 			data: {
 				labels: Samples.LABELS,
 				datasets: [{
@@ -241,6 +238,7 @@
 				}]
 			},
 			options: {
+				responsive: true,
 				zoomOutPercentage: 60,
 				plugins: {
 					outlabels: params

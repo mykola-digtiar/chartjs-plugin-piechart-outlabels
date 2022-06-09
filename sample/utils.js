@@ -40,7 +40,7 @@
 	Samples.LABELS = "crow;cut;gabby;mute;soak;telephone;iron;steel;numberless;shirt;mind;knowledgeable;icy;bath;spurious;stove;chickens;knock;squealing;shelter;apologise;tire;visit;endurable;truck;curtain;lumpy;wren;spot;common;plate;view;true;stranger;last;picture;poke;sweater;chew;hesitant;thing;war;bored;faithful;undress;simplistic;numerous;talk;stale;leather".match(/[^;]+/g);
 
 	Samples.LABELS.forEach(function(item, i, arr) {
-		arr[i] = item.trim().toUpperCase();
+		arr[i] = item.trim();
 	})
 
 	// Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/

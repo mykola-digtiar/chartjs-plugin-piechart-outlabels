@@ -40,10 +40,10 @@ gulp.task('build', function() {
 	var task = function() {
 		return rollup('rollup.config.js')
 			.pipe(source(pkg.name + '.js'))
-			.pipe(gulp.dest(out))
-			.pipe(rename(pkg.name + '.min.js'))
-			.pipe(streamify(uglify({preserveComments: 'license'})))
 			.pipe(gulp.dest(out));
+			// .pipe(rename(pkg.name + '.min.js'))
+			// .pipe(streamify(uglify({preserveComments: 'license'})))
+			// .pipe(gulp.dest(out));
 	};
 
 	var tasks = [task()];

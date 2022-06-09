@@ -43,18 +43,16 @@ export default helpers.merge(helpers, {
 
 	// @todo move this method in Chart.helpers.options.toFont
 	parseFont: function(value, height) {
-		
-		var global = Chart.defaults.global;
+		var global = Chart.defaults;
 		var size = helpers.valueOrDefault(value.size, global.defaultFontSize);
 
-		
 		if (value.resizable) {
 			size = this.adaptTextSizeToHeight(height, value.minSize, value.maxSize);
 		}
 
 		var font = {
 			family: helpers.valueOrDefault(value.family, global.defaultFontFamily),
-			lineHeight: helpers.options.toLineHeight(value.lineHeight, size),
+			lineHeight: helpers.toLineHeight(value.lineHeight, size),
 			size: size,
 			style: helpers.valueOrDefault(value.style, global.defaultFontStyle),
 			weight: helpers.valueOrDefault(value.weight, null),
@@ -67,10 +65,10 @@ export default helpers.merge(helpers, {
 
 	adaptTextSizeToHeight: function(height, min, max) {
 		var size = (height / 100) * 2.5;
-		if(min && size < min) {
+		if (min && size < min) {
 			return min;
 		}
-		if(max && size > max) {
+		if (max && size > max) {
 			return max;
 		}
 		return size;
