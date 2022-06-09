@@ -6,7 +6,7 @@ var file = require('gulp-file');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var streamify = require('gulp-streamify');
-var uglify = require('gulp-uglify');
+var uglify = require('gulp-uglify-es').default;
 var gutil = require('gulp-util');
 var zip = require('gulp-zip');
 var merge = require('merge2');
@@ -40,10 +40,10 @@ gulp.task('build', function() {
 	var task = function() {
 		return rollup('rollup.config.js')
 			.pipe(source(pkg.name + '.js'))
+			.pipe(gulp.dest(out))
+			.pipe(rename(pkg.name + '.min.js'))
+			.pipe(streamify(uglify()))
 			.pipe(gulp.dest(out));
-			// .pipe(rename(pkg.name + '.min.js'))
-			// .pipe(streamify(uglify({preserveComments: 'license'})))
-			// .pipe(gulp.dest(out));
 	};
 
 	var tasks = [task()];
