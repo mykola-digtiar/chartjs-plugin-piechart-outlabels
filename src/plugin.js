@@ -1,6 +1,5 @@
 'use strict';
-
-import Chart from 'chart.js';
+import {defaults as ChartDefaults} from 'chart.js';
 import outlabeledCharts from './outlabeledCharts';
 import defaults from './defaults.js';
 
@@ -9,8 +8,8 @@ import helpers from './helpers';
 
 
 outlabeledCharts.init();
+ChartDefaults.plugins.outlabels = defaults;
 
-Chart.defaults.plugins.outlabels = defaults;
 
 var LABEL_KEY = defaults.LABEL_KEY;
 
@@ -28,7 +27,7 @@ function configure(dataset, options) {
   return helpers.merge(config, [options, override]);
 }
 
-Chart.register({
+export default {
   id: 'outlabels',
 
   resize: function(chart) {
@@ -103,4 +102,4 @@ Chart.register({
       }
     }
   }
-});
+};

@@ -1,14 +1,14 @@
 'use strict';
 
 import defaults from './defaults';
-import Chart from 'chart.js';
+import {PieController, DoughnutController, Chart, defaults as ChartDefaults} from 'chart.js';
 
 export default {
   init: function() {
-    Chart.defaults.outlabeledDoughnut = Chart.defaults.doughnut;
-    Chart.defaults.outlabeledPie = Chart.defaults.pie;
+    ChartDefaults.outlabeledDoughnut = ChartDefaults.doughnut;
+    ChartDefaults.outlabeledPie = ChartDefaults.pie;
 
-    class OutlabeledPie extends Chart.PieController {
+    class OutlabeledPie extends PieController {
       update(reset) {
         super.update(reset);
         var meta = this.getMeta();
@@ -21,7 +21,7 @@ export default {
       }
     }
 
-    class OutlabeledDoughnut extends Chart.DoughnutController {
+    class OutlabeledDoughnut extends DoughnutController {
       update(reset) {
         super.update(reset);
         var meta = this.getMeta();

@@ -4,7 +4,7 @@
  * (c) 2017-2022 chartjs-plugin-piechart-outlabels contributors
  * Released under the MIT license
  */
-import Chart from 'chart.js';
+import { defaults as defaults$1, Chart, PieController, DoughnutController } from 'chart.js';
 
 /**
  * @module Options
@@ -167,10 +167,10 @@ var defaults = {
 
 var outlabeledCharts = {
   init: function() {
-    Chart.defaults.outlabeledDoughnut = Chart.defaults.doughnut;
-    Chart.defaults.outlabeledPie = Chart.defaults.pie;
+    defaults$1.outlabeledDoughnut = defaults$1.doughnut;
+    defaults$1.outlabeledPie = defaults$1.pie;
 
-    class OutlabeledPie extends Chart.PieController {
+    class OutlabeledPie extends PieController {
       update(reset) {
         super.update(reset);
         var meta = this.getMeta();
@@ -183,7 +183,7 @@ var outlabeledCharts = {
       }
     }
 
-    class OutlabeledDoughnut extends Chart.DoughnutController {
+    class OutlabeledDoughnut extends DoughnutController {
       update(reset) {
         super.update(reset);
         var meta = this.getMeta();
@@ -652,8 +652,8 @@ var helpers$1 = helpers.merge(helpers, {
 });
 
 outlabeledCharts.init();
+defaults$1.plugins.outlabels = defaults;
 
-Chart.defaults.plugins.outlabels = defaults;
 
 var LABEL_KEY = defaults.LABEL_KEY;
 
@@ -671,7 +671,7 @@ function configure(dataset, options) {
   return helpers$1.merge(config, [options, override]);
 }
 
-Chart.register({
+var plugin = {
   id: 'outlabels',
 
   resize: function(chart) {
@@ -746,4 +746,6 @@ Chart.register({
       }
     }
   }
-});
+};
+
+export { plugin as default };
