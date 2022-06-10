@@ -4,15 +4,7 @@
  * (c) 2017-2022 chartjs-plugin-piechart-outlabels contributors
  * Released under the MIT license
  */
-(function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('chart.js')) :
-typeof define === 'function' && define.amd ? define(['chart.js'], factory) :
-(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Chart));
-})(this, (function (Chart) { 'use strict';
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var Chart__default = /*#__PURE__*/_interopDefaultLegacy(Chart);
+import Chart from 'chart.js';
 
 /**
  * @module Options
@@ -175,10 +167,10 @@ var defaults = {
 
 var outlabeledCharts = {
   init: function() {
-    Chart__default["default"].defaults.outlabeledDoughnut = Chart__default["default"].defaults.doughnut;
-    Chart__default["default"].defaults.outlabeledPie = Chart__default["default"].defaults.pie;
+    Chart.defaults.outlabeledDoughnut = Chart.defaults.doughnut;
+    Chart.defaults.outlabeledPie = Chart.defaults.pie;
 
-    class OutlabeledPie extends Chart__default["default"].PieController {
+    class OutlabeledPie extends Chart.PieController {
       update(reset) {
         super.update(reset);
         var meta = this.getMeta();
@@ -191,7 +183,7 @@ var outlabeledCharts = {
       }
     }
 
-    class OutlabeledDoughnut extends Chart__default["default"].DoughnutController {
+    class OutlabeledDoughnut extends Chart.DoughnutController {
       update(reset) {
         super.update(reset);
         var meta = this.getMeta();
@@ -207,8 +199,8 @@ var outlabeledCharts = {
     OutlabeledPie.id = 'outlabeledPie';
     OutlabeledDoughnut.id = 'outlabeledDoughnut';
 
-    Chart__default["default"].register(OutlabeledPie);
-    Chart__default["default"].register(OutlabeledDoughnut);
+    Chart.register(OutlabeledPie);
+    Chart.register(OutlabeledDoughnut);
   }
 };
 
@@ -259,12 +251,12 @@ var positioners = {
   }
 };
 
-var helpers$2 = Chart__default["default"].helpers;
+var helpers$2 = Chart.helpers;
 var LABEL_KEY$1 = defaults.LABEL_KEY;
 
 var classes = {
   OutLabel: function(el, index, ctx, config, context) {
-    var resolve = Chart__default["default"].helpers.resolve;
+    var resolve = Chart.helpers.resolve;
     // Check whether the label should be displayed
     if (!resolve([config.display, true], context, index)) {
       throw new Error('Label display property is set to false.');
@@ -586,7 +578,7 @@ var classes = {
   }
 };
 
-var helpers = Chart__default["default"].helpers;
+var helpers = Chart.helpers;
 
 var helpers$1 = helpers.merge(helpers, {
   // @todo move this method in Chart.helpers.canvas.toFont (deprecates helpers.fontString)
@@ -627,7 +619,7 @@ var helpers$1 = helpers.merge(helpers, {
 
   // @todo move this method in Chart.helpers.options.toFont
   parseFont: function(value, height) {
-    var global = Chart__default["default"].defaults;
+    var global = Chart.defaults;
     var size = helpers.valueOrDefault(value.size, global.defaultFontSize);
 
     if (value.resizable) {
@@ -661,7 +653,7 @@ var helpers$1 = helpers.merge(helpers, {
 
 outlabeledCharts.init();
 
-Chart__default["default"].defaults.plugins.outlabels = defaults;
+Chart.defaults.plugins.outlabels = defaults;
 
 var LABEL_KEY = defaults.LABEL_KEY;
 
@@ -679,7 +671,7 @@ function configure(dataset, options) {
   return helpers$1.merge(config, [options, override]);
 }
 
-Chart__default["default"].register({
+Chart.register({
   id: 'outlabels',
 
   resize: function(chart) {
@@ -755,5 +747,3 @@ Chart__default["default"].register({
     }
   }
 });
-
-}));
