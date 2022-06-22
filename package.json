@@ -8,7 +8,7 @@
   "module": "dist/chartjs-plugin-piechart-outlabels.esm.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Neckster/chartjs-plugin-piechart-outlabels"
+    "url": "https://github.com/energiency/chartjs-plugin-piechart-outlabels"
   },
   "files": [
     "dist/*.js"

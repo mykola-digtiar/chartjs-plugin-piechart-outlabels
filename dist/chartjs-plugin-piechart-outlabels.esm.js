@@ -4,13 +4,14 @@
  * (c) 2017-2022 chartjs-plugin-piechart-outlabels contributors
  * Released under the MIT license
  */
-import { defaults as defaults$1, Chart, PieController, DoughnutController } from 'chart.js';
+import { Chart, defaults } from 'chart.js';
+import { valueOrDefault, toLineHeight, isNullOrUndef, resolve, toPadding } from 'chart.js/helpers';
 
 /**
  * @module Options
  */
 
-var defaults = {
+var customDefaults = {
 
   LABEL_KEY: '$outlabels',
 
@@ -130,11 +131,18 @@ var defaults = {
   textAlign: 'center',
 
   /**
-	 * The length of the line between label and chart arc.
+	 * The radius of distance where the label will be drawn
 	 * @member {Number|Array|Function|undefined}
 	 * @default 40
 	 */
   stretch: 40,
+
+  /**
+	 * The length of the horizontal part of line between label and chart arc.
+	 * @member {Number}
+	 * @default 40
+	 */
+  horizontalStrechPad: 40,
 
   /**
 	 * The text of the label.
@@ -163,45 +171,6 @@ var defaults = {
 	 * @default 3
 	 */
   valuePrecision: 3
-};
-
-var outlabeledCharts = {
-  init: function() {
-    defaults$1.outlabeledDoughnut = defaults$1.doughnut;
-    defaults$1.outlabeledPie = defaults$1.pie;
-
-    class OutlabeledPie extends PieController {
-      update(reset) {
-        super.update(reset);
-        var meta = this.getMeta();
-        var zoomOutPercentage = this.chart.options.zoomOutPercentage || defaults.zoomOutPercentage;
-
-        this.outerRadius *= 1 - zoomOutPercentage / 100;
-        this.innerRadius *= 1 - zoomOutPercentage / 100;
-
-        this.updateElements(meta.data, 0, meta.data.length, 'resize');
-      }
-    }
-
-    class OutlabeledDoughnut extends DoughnutController {
-      update(reset) {
-        super.update(reset);
-        var meta = this.getMeta();
-        var zoomOutPercentage = this.chart.options.zoomOutPercentage || defaults.zoomOutPercentage;
-
-        this.outerRadius *= 1 - zoomOutPercentage / 100;
-        this.innerRadius *= 1 - zoomOutPercentage / 100;
-
-        this.updateElements(meta.data, 0, meta.data.length, 'resize');
-      }
-    }
-
-    OutlabeledPie.id = 'outlabeledPie';
-    OutlabeledDoughnut.id = 'outlabeledDoughnut';
-
-    Chart.register(OutlabeledPie);
-    Chart.register(OutlabeledDoughnut);
-  }
 };
 
 var positioners = {
@@ -251,12 +220,73 @@ var positioners = {
   }
 };
 
-var helpers$2 = Chart.helpers;
-var LABEL_KEY$1 = defaults.LABEL_KEY;
+function toFontString(font) {
+  if (!font || isNullOrUndef(font.size) || isNullOrUndef(font.family)) {
+    return null;
+  }
+
+  return (font.style ? font.style + ' ' : '')
+    + (font.weight ? font.weight + ' ' : '')
+    + font.size + 'px '
+    + font.family;
+}
+
+function textSize(ctx, lines, font) {
+  var items = [].concat(lines);
+  var ilen = items.length;
+  var prev = ctx.font;
+  var width = 0;
+  var i;
+
+  ctx.font = font.string;
+
+  for (i = 0; i < ilen; ++i) {
+    width = Math.max(ctx.measureText(items[i]).width, width);
+  }
+
+  ctx.font = prev;
+
+  return {
+    height: ilen * font.lineHeight,
+    width: width
+  };
+}
+
+function adaptTextSizeToHeight(height, minimum, maximum) {
+  var size = (height / 100) * 2.5;
+  if (minimum && size < minimum) {
+    return minimum;
+  }
+  if (maximum && size > maximum) {
+    return maximum;
+  }
+  return size;
+}
+
+function parseFont(value, height) {
+  var size = valueOrDefault(value.size, Chart.defaults.defaultFontSize);
+
+  if (value.resizable) {
+    size = adaptTextSizeToHeight(height, value.minSize, value.maxSize);
+  }
+
+  var font = {
+    family: valueOrDefault(value.family, Chart.defaults.defaultFontFamily),
+    lineHeight: toLineHeight(value.lineHeight, size),
+    size: size,
+    style: valueOrDefault(value.style, Chart.defaults.defaultFontStyle),
+    weight: valueOrDefault(value.weight, null),
+    string: ''
+  };
+
+  font.string = toFontString(font);
+  return font;
+}
+
+var LABEL_KEY$1 = customDefaults.LABEL_KEY;
 
 var classes = {
   OutLabel: function(el, index, ctx, config, context) {
-    var resolve = Chart.helpers.resolve;
     // Check whether the label should be displayed
     if (!resolve([config.display, true], context, index)) {
       throw new Error('Label display property is set to false.');
@@ -264,7 +294,7 @@ var classes = {
     // Init text
     var value = context.dataset.data[index];
     var label = context.labels[index];
-    var text = resolve([config.text, defaults.text], context, index);
+    var text = resolve([config.text, customDefaults.text], context, index);
 
     /* Replace label marker */
     text = text.replace(/%l/gi, label);
@@ -275,7 +305,7 @@ var classes = {
       if (prec.length) {
         return +prec;
       }
-      return config.valuePrecision || defaults.valuePrecision;
+      return config.valuePrecision || customDefaults.valuePrecision;
     }).forEach(function(val) {
       text = text.replace(/%v\.?(\d*)/i, value.toFixed(val));
     });
@@ -286,7 +316,7 @@ var classes = {
       if (prec.length) {
         return +prec;
       }
-      return config.percentPrecision || defaults.percentPrecision;
+      return config.percentPrecision || customDefaults.percentPrecision;
     }).forEach(function(val) {
       text = text.replace(/%p\.?(\d*)/i, (context.percent * 100).toFixed(val) + '%');
     });
@@ -316,20 +346,21 @@ var classes = {
 
       // Init style
       this.style = {
-        backgroundColor: resolve([config.backgroundColor, defaults.backgroundColor, 'black'], context, index),
-        borderColor: resolve([config.borderColor, defaults.borderColor, 'black'], context, index),
+        backgroundColor: resolve([config.backgroundColor, customDefaults.backgroundColor, 'black'], context, index),
+        borderColor: resolve([config.borderColor, customDefaults.borderColor, 'black'], context, index),
         borderRadius: resolve([config.borderRadius, 0], context, index),
         borderWidth: resolve([config.borderWidth, 0], context, index),
         lineWidth: resolve([config.lineWidth, 2], context, index),
-        lineColor: resolve([config.lineColor, defaults.lineColor, 'black'], context, index),
+        lineColor: resolve([config.lineColor, customDefaults.lineColor, 'black'], context, index),
         color: resolve([config.color, 'white'], context, index),
-        font: helpers$2.parseFont(resolve([config.font, {resizable: true}]), ctx.canvas.style.height.slice(0, -2)),
-        padding: helpers$2.toPadding(resolve([config.padding, 0], context, index)),
+        font: parseFont(resolve([config.font, {resizable: true}]), ctx.canvas.style.height.slice(0, -2)),
+        padding: toPadding(resolve([config.padding, 0], context, index)),
         textAlign: resolve([config.textAlign, 'left'], context, index),
       };
 
       this.stretch = resolve([config.stretch, 40], context, index);
-      this.size = helpers$2.textSize(ctx, this.lines, this.style.font);
+      this.horizontalStrechPad = resolve([config.horizontalStrechPad, 40], context, index);
+      this.size = textSize(ctx, this.lines, this.style.font);
 
       this.offsetStep = this.size.width / 20;
       this.offset = {
@@ -368,10 +399,9 @@ var classes = {
         height: height
       };
     };
-    const pad = 60;
 
     this.computeTextRect = function() {
-      const shift = (this.center.x - this.center.copy.x < 0 ? -pad : pad);
+      const shift = (this.center.x - this.center.anchor.x < 0 ? -1 : 1) * this.horizontalStrechPad;
       return {
         x: this.center.x - (this.size.width / 2) - this.style.padding.left + shift,
         y: this.center.y - (this.size.height / 2) - this.style.padding.top,
@@ -578,84 +608,11 @@ var classes = {
   }
 };
 
-var helpers = Chart.helpers;
-
-var helpers$1 = helpers.merge(helpers, {
-  // @todo move this method in Chart.helpers.canvas.toFont (deprecates helpers.fontString)
-  // @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
-  toFontString: function(font) {
-    if (!font || helpers.isNullOrUndef(font.size) || helpers.isNullOrUndef(font.family)) {
-      return null;
-    }
-
-    return (font.style ? font.style + ' ' : '')
-			+ (font.weight ? font.weight + ' ' : '')
-			+ font.size + 'px '
-			+ font.family;
-  },
-
-  // @todo move this in Chart.helpers.canvas.textSize
-  // @todo cache calls of measureText if font doesn't change?!
-  textSize: function(ctx, lines, font) {
-    var items = [].concat(lines);
-    var ilen = items.length;
-    var prev = ctx.font;
-    var width = 0;
-    var i;
-
-    ctx.font = font.string;
-
-    for (i = 0; i < ilen; ++i) {
-      width = Math.max(ctx.measureText(items[i]).width, width);
-    }
-
-    ctx.font = prev;
-
-    return {
-      height: ilen * font.lineHeight,
-      width: width
-    };
-  },
-
-  // @todo move this method in Chart.helpers.options.toFont
-  parseFont: function(value, height) {
-    var global = Chart.defaults;
-    var size = helpers.valueOrDefault(value.size, global.defaultFontSize);
-
-    if (value.resizable) {
-      size = this.adaptTextSizeToHeight(height, value.minSize, value.maxSize);
-    }
-
-    var font = {
-      family: helpers.valueOrDefault(value.family, global.defaultFontFamily),
-      lineHeight: helpers.toLineHeight(value.lineHeight, size),
-      size: size,
-      style: helpers.valueOrDefault(value.style, global.defaultFontStyle),
-      weight: helpers.valueOrDefault(value.weight, null),
-      string: ''
-    };
-
-    font.string = helpers.toFontString(font);
-    return font;
-  },
-
-  adaptTextSizeToHeight: function(height, min, max) {
-    var size = (height / 100) * 2.5;
-    if (min && size < min) {
-      return min;
-    }
-    if (max && size > max) {
-      return max;
-    }
-    return size;
-  }
-});
-
-outlabeledCharts.init();
-defaults$1.plugins.outlabels = defaults;
+// outlabeledCharts.init();
+defaults.plugins.outlabels = customDefaults;
 
 
-var LABEL_KEY = defaults.LABEL_KEY;
+var LABEL_KEY = customDefaults.LABEL_KEY;
 
 function configure(dataset, options) {
   var override = dataset.outlabels;
@@ -668,16 +625,25 @@ function configure(dataset, options) {
     override = {};
   }
 
-  return helpers$1.merge(config, [options, override]);
+  return Object.assign({}, config, options, override);
+
 }
 
 var plugin = {
   id: 'outlabels',
-
   resize: function(chart) {
     chart.sizeChanged = true;
   },
+  afterUpdate: (chart) => {
+    const ctrl = chart._metasets[0].controller;
+    var meta = ctrl.getMeta();
+    var zoomOutPercentage = chart.options.zoomOutPercentage || customDefaults.zoomOutPercentage;
 
+    ctrl.outerRadius *= 1 - zoomOutPercentage / 100;
+    ctrl.innerRadius *= 1 - zoomOutPercentage / 100;
+
+    ctrl.updateElements(meta.data, 0, meta.data.length, 'resize');
+  },
   afterDatasetUpdate: function(chart, args, options) {
     var labels = chart.config.data.labels;
     var dataset = chart.data.datasets[args.index];

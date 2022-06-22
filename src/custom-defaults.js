@@ -124,11 +124,18 @@ export default {
   textAlign: 'center',
 
   /**
-	 * The length of the line between label and chart arc.
+	 * The radius of distance where the label will be drawn
 	 * @member {Number|Array|Function|undefined}
 	 * @default 40
 	 */
   stretch: 40,
+
+  /**
+	 * The length of the horizontal part of line between label and chart arc.
+	 * @member {Number}
+	 * @default 40
+	 */
+  horizontalStrechPad: 40,
 
   /**
 	 * The text of the label.

@@ -1,17 +1,14 @@
 'use strict';
 import {defaults as ChartDefaults} from 'chart.js';
-import outlabeledCharts from './outlabeledCharts';
-import defaults from './defaults.js';
+import customDefaults from './custom-defaults.js';
 
 import classes from './classes.js';
-import helpers from './helpers';
 
 
-outlabeledCharts.init();
-ChartDefaults.plugins.outlabels = defaults;
+ChartDefaults.plugins.outlabels = customDefaults;
 
 
-var LABEL_KEY = defaults.LABEL_KEY;
+var LABEL_KEY = customDefaults.LABEL_KEY;
 
 function configure(dataset, options) {
   var override = dataset.outlabels;
@@ -24,16 +21,25 @@ function configure(dataset, options) {
     override = {};
   }
 
-  return helpers.merge(config, [options, override]);
+  return Object.assign({}, config, options, override);
+
 }
 
 export default {
   id: 'outlabels',
-
   resize: function(chart) {
     chart.sizeChanged = true;
   },
+  afterUpdate: (chart) => {
+    const ctrl = chart._metasets[0].controller;
+    var meta = ctrl.getMeta();
+    var zoomOutPercentage = chart.options.zoomOutPercentage || customDefaults.zoomOutPercentage;
 
+    ctrl.outerRadius *= 1 - zoomOutPercentage / 100;
+    ctrl.innerRadius *= 1 - zoomOutPercentage / 100;
+
+    ctrl.updateElements(meta.data, 0, meta.data.length, 'resize');
+  },
   afterDatasetUpdate: function(chart, args, options) {
     var labels = chart.config.data.labels;
     var dataset = chart.data.datasets[args.index];

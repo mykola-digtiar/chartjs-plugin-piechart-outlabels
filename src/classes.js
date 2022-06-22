@@ -1,15 +1,14 @@
 'use strict';
 
-import {Chart} from 'chart.js';
+import {toPadding, resolve} from 'chart.js/helpers';
 import positioners from './positioners.js';
-import defaults from './defaults.js';
+import {textSize, parseFont} from './custom-helpers';
+import customDefaults from './custom-defaults.js';
 
-var helpers = Chart.helpers;
-var LABEL_KEY = defaults.LABEL_KEY;
+var LABEL_KEY = customDefaults.LABEL_KEY;
 
 export default {
   OutLabel: function(el, index, ctx, config, context) {
-    var resolve = Chart.helpers.resolve;
     // Check whether the label should be displayed
     if (!resolve([config.display, true], context, index)) {
       throw new Error('Label display property is set to false.');
@@ -17,7 +16,7 @@ export default {
     // Init text
     var value = context.dataset.data[index];
     var label = context.labels[index];
-    var text = resolve([config.text, defaults.text], context, index);
+    var text = resolve([config.text, customDefaults.text], context, index);
 
     /* Replace label marker */
     text = text.replace(/%l/gi, label);
@@ -28,7 +27,7 @@ export default {
       if (prec.length) {
         return +prec;
       }
-      return config.valuePrecision || defaults.valuePrecision;
+      return config.valuePrecision || customDefaults.valuePrecision;
     }).forEach(function(val) {
       text = text.replace(/%v\.?(\d*)/i, value.toFixed(val));
     });
@@ -39,7 +38,7 @@ export default {
       if (prec.length) {
         return +prec;
       }
-      return config.percentPrecision || defaults.percentPrecision;
+      return config.percentPrecision || customDefaults.percentPrecision;
     }).forEach(function(val) {
       text = text.replace(/%p\.?(\d*)/i, (context.percent * 100).toFixed(val) + '%');
     });
@@ -69,20 +68,21 @@ export default {
 
       // Init style
       this.style = {
-        backgroundColor: resolve([config.backgroundColor, defaults.backgroundColor, 'black'], context, index),
-        borderColor: resolve([config.borderColor, defaults.borderColor, 'black'], context, index),
+        backgroundColor: resolve([config.backgroundColor, customDefaults.backgroundColor, 'black'], context, index),
+        borderColor: resolve([config.borderColor, customDefaults.borderColor, 'black'], context, index),
         borderRadius: resolve([config.borderRadius, 0], context, index),
         borderWidth: resolve([config.borderWidth, 0], context, index),
         lineWidth: resolve([config.lineWidth, 2], context, index),
-        lineColor: resolve([config.lineColor, defaults.lineColor, 'black'], context, index),
+        lineColor: resolve([config.lineColor, customDefaults.lineColor, 'black'], context, index),
         color: resolve([config.color, 'white'], context, index),
-        font: helpers.parseFont(resolve([config.font, {resizable: true}]), ctx.canvas.style.height.slice(0, -2)),
-        padding: helpers.toPadding(resolve([config.padding, 0], context, index)),
+        font: parseFont(resolve([config.font, {resizable: true}]), ctx.canvas.style.height.slice(0, -2)),
+        padding: toPadding(resolve([config.padding, 0], context, index)),
         textAlign: resolve([config.textAlign, 'left'], context, index),
       };
 
       this.stretch = resolve([config.stretch, 40], context, index);
-      this.size = helpers.textSize(ctx, this.lines, this.style.font);
+      this.horizontalStrechPad = resolve([config.horizontalStrechPad, 40], context, index);
+      this.size = textSize(ctx, this.lines, this.style.font);
 
       this.offsetStep = this.size.width / 20;
       this.offset = {
@@ -121,10 +121,9 @@ export default {
         height: height
       };
     };
-    const pad = 60;
 
     this.computeTextRect = function() {
-      const shift = (this.center.x - this.center.copy.x < 0 ? -pad : pad);
+      const shift = (this.center.x - this.center.anchor.x < 0 ? -1 : 1) * this.horizontalStrechPad;
       return {
         x: this.center.x - (this.size.width / 2) - this.style.padding.left + shift,
         y: this.center.y - (this.size.height / 2) - this.style.padding.top,
