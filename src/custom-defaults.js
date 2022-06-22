@@ -126,16 +126,16 @@ export default {
   /**
 	 * The radius of distance where the label will be drawn
 	 * @member {Number|Array|Function|undefined}
-	 * @default 40
+	 * @default 30
 	 */
-  stretch: 40,
+  stretch: 30,
 
   /**
 	 * The length of the horizontal part of line between label and chart arc.
 	 * @member {Number}
-	 * @default 40
+	 * @default 30
 	 */
-  horizontalStrechPad: 40,
+  horizontalStrechPad: 20,
 
   /**
 	 * The text of the label.
@@ -147,9 +147,9 @@ export default {
   /**
 	 * The level of zoom (out) for pie/doughnut chart in percent.
 	 * @member {Number}
-	 * @default 50 (%)
+	 * @default 10 (%)
 	 */
-  zoomOutPercentage: 50,
+  zoomOutPercentage: 10,
 
   /**
 	 * The count of numbers after the point separator for float values of percent property

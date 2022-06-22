@@ -128,8 +128,8 @@
 			</div>
 		</div>
 		<div class="col-9">
-			<div>
-				<canvas id="pieChart" style="height:100vh;"></canvas>
+			<div class="chart-container" style="position: relative; height:40vh; width:40vw">
+				<canvas id="pieChart" ></canvas>
 			</div>
 
 			<!-- Modal -->
@@ -161,6 +161,7 @@
 
 	<script id="script-init">
 		var DATA_COUNT = 10;
+		var DATE_RANGE = 10000000;
 
 		Samples.srand(4);
 
@@ -209,13 +210,13 @@
 			backgroundColor: 'transparent',
 			valuePrecision: 0,
 			percentPrecision: 2,
-			text: '%v (%p)',
+			text: '%l (%p)\nValue %v',
 		}
 
 		var data = Samples.numbers({
 			count: DATA_COUNT,
 			min: 0,
-			max: 100
+			max: DATE_RANGE
 		});
 
 		
@@ -327,7 +328,7 @@
 					return Samples.color();
 				});
 				dataset.data = dataset.data.map(function(value) {
-					return Samples.rand(0, 100);
+					return Samples.rand(0, DATE_RANGE);
 				});
 			});
 
@@ -338,7 +339,7 @@
 			chart.data.labels.push(chart.data.labels.length);
 			chart.data.datasets.forEach(function(dataset, i) {
 				dataset.backgroundColor.push(Samples.color());
-				dataset.data.push(Samples.rand(0, 100));
+				dataset.data.push(Samples.rand(0, DATE_RANGE));
 			});
 
 			chart.update();

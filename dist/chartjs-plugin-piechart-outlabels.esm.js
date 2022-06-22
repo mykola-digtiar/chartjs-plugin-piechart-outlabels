@@ -133,16 +133,16 @@ var customDefaults = {
   /**
 	 * The radius of distance where the label will be drawn
 	 * @member {Number|Array|Function|undefined}
-	 * @default 40
+	 * @default 30
 	 */
-  stretch: 40,
+  stretch: 30,
 
   /**
 	 * The length of the horizontal part of line between label and chart arc.
 	 * @member {Number}
-	 * @default 40
+	 * @default 30
 	 */
-  horizontalStrechPad: 40,
+  horizontalStrechPad: 20,
 
   /**
 	 * The text of the label.
@@ -154,9 +154,9 @@ var customDefaults = {
   /**
 	 * The level of zoom (out) for pie/doughnut chart in percent.
 	 * @member {Number}
-	 * @default 50 (%)
+	 * @default 10 (%)
 	 */
-  zoomOutPercentage: 50,
+  zoomOutPercentage: 10,
 
   /**
 	 * The count of numbers after the point separator for float values of percent property
@@ -358,8 +358,8 @@ var classes = {
         textAlign: resolve([config.textAlign, 'left'], context, index),
       };
 
-      this.stretch = resolve([config.stretch, 40], context, index);
-      this.horizontalStrechPad = resolve([config.horizontalStrechPad, 40], context, index);
+      this.stretch = resolve([config.stretch, customDefaults.stretch], context, index);
+      this.horizontalStrechPad = resolve([config.horizontalStrechPad, customDefaults.horizontalStrechPad], context, index);
       this.size = textSize(ctx, this.lines, this.style.font);
 
       this.offsetStep = this.size.width / 20;
@@ -367,19 +367,6 @@ var classes = {
         x: 0,
         y: 0
       };
-      this.predictedOffset = this.offset;
-
-
-      var angle = -((el.startAngle + el.endAngle) / 2) / (Math.PI);
-      var val = Math.abs(angle - Math.trunc(angle));
-
-      if (val > 0.45 && val < 0.55) {
-        this.predictedOffset.x = 0;
-      } else if (angle <= 0.45 && angle >= -0.45) {
-        this.predictedOffset.x = this.size.width / 2;
-      } else if (angle >= -1.45 && angle <= -0.55) {
-        this.predictedOffset.x = -this.size.width / 2;
-      }
     };
 
     this.init(text, lines);
@@ -401,9 +388,11 @@ var classes = {
     };
 
     this.computeTextRect = function() {
-      const shift = (this.center.x - this.center.anchor.x < 0 ? -1 : 1) * this.horizontalStrechPad;
+      const isLeft = this.center.x - this.center.anchor.x < 0;
+      const shift = isLeft ? -(this.horizontalStrechPad + this.size.width) : this.horizontalStrechPad;
+      console.log(this.size);
       return {
-        x: this.center.x - (this.size.width / 2) - this.style.padding.left + shift,
+        x: this.center.x - (this.size.width *0) - this.style.padding.left + shift,
         y: this.center.y - (this.size.height / 2) - this.style.padding.top,
         width: this.size.width,
         height: this.size.height + this.style.padding.height
@@ -431,10 +420,8 @@ var classes = {
       ];
     };
 
-    this.containsPoint = function(point, offset) {
-      if (!offset) {
-        offset = 5;
-      }
+    this.containsPoint = function(point) {
+      let offset = 5;
 
       return	this.labelRect.x - offset <= point.x && point.x <= this.labelRect.x + this.labelRect.width + offset
 							&&
@@ -547,12 +534,9 @@ var classes = {
     };
 
 
+    // eslint-disable-next-line max-statements
     this.update = function(view, elements, max) {
       this.center = positioners.center(view, this.stretch);
-      this.moveLabelToOffset();
-
-      this.center.x += this.offset.x;
-      this.center.y += this.offset.y;
 
       var valid = false;
 
@@ -560,7 +544,6 @@ var classes = {
         this.textRect = this.computeTextRect();
         this.labelRect = this.computeLabelRect();
         var rectPoints = this.getPoints();
-
         valid = true;
 
         for (var e = 0; e < max; ++e) {
@@ -586,29 +569,13 @@ var classes = {
 
         if (!valid) {
           this.center = positioners.moveFromAnchor(this.center, 1);
-          this.center.x += this.offset.x;
-          this.center.y += this.offset.y;
         }
       }
     };
 
-    this.moveLabelToOffset = function() {
-      if (this.predictedOffset.x <= 0 && this.offset.x > this.predictedOffset.x) {
-        this.offset.x -= this.offsetStep;
-        if (this.offset.x <= this.predictedOffset.x) {
-          this.offset.x = this.predictedOffset.x;
-        }
-      } else if (this.predictedOffset.x >= 0 && this.offset.x < this.predictedOffset.x) {
-        this.offset.x += this.offsetStep;
-        if (this.offset.x >= this.predictedOffset.x) {
-          this.offset.x = this.predictedOffset.x;
-        }
-      }
-    };
   }
 };
 
-// outlabeledCharts.init();
 defaults.plugins.outlabels = customDefaults;
 
 
