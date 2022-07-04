@@ -112,9 +112,8 @@ export default {
     this.computeTextRect = function() {
       const isLeft = this.center.x - this.center.anchor.x < 0;
       const shift = isLeft ? -(this.horizontalStrechPad + this.size.width) : this.horizontalStrechPad;
-      console.log(this.size);
       return {
-        x: this.center.x - (this.size.width *0) - this.style.padding.left + shift,
+        x: this.center.x - (this.size.width * 0) - this.style.padding.left + shift,
         y: this.center.y - (this.size.height / 2) - this.style.padding.top,
         width: this.size.width,
         height: this.size.height + this.style.padding.height
