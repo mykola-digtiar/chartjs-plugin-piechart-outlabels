@@ -128,7 +128,7 @@ export default {
 	 * @member {Number|Array|Function|undefined}
 	 * @default 30
 	 */
-  stretch: 30,
+  stretch: 20,
 
   /**
 	 * The length of the horizontal part of line between label and chart arc.
@@ -149,7 +149,7 @@ export default {
 	 * @member {Number}
 	 * @default 10 (%)
 	 */
-  zoomOutPercentage: 10,
+  zoomOutPercentage: 50,
 
   /**
 	 * The count of numbers after the point separator for float values of percent property

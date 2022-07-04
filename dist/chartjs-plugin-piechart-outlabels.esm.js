@@ -135,7 +135,7 @@ var customDefaults = {
 	 * @member {Number|Array|Function|undefined}
 	 * @default 30
 	 */
-  stretch: 30,
+  stretch: 20,
 
   /**
 	 * The length of the horizontal part of line between label and chart arc.
@@ -156,7 +156,7 @@ var customDefaults = {
 	 * @member {Number}
 	 * @default 10 (%)
 	 */
-  zoomOutPercentage: 10,
+  zoomOutPercentage: 50,
 
   /**
 	 * The count of numbers after the point separator for float values of percent property
@@ -392,9 +392,9 @@ var classes = {
       const shift = isLeft ? -(this.horizontalStrechPad + this.size.width) : this.horizontalStrechPad;
       return {
         x: this.center.x - (this.size.width * 0) - this.style.padding.left + shift,
-        y: this.center.y - (this.size.height / 2) - this.style.padding.top,
+        y: this.center.y - (this.size.height / 2),
         width: this.size.width,
-        height: this.size.height + this.style.padding.height
+        height: this.size.height,
       };
     };
 
@@ -460,7 +460,7 @@ var classes = {
         this.ctx.fillText(
           this.lines[idx],
           Math.round(x) + this.style.padding.left,
-          Math.round(y) + this.style.padding.top,
+          Math.round(y),
           Math.round(this.textRect.width)
         );
         y += lh;

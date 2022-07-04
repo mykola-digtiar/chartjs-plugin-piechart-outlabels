@@ -114,9 +114,9 @@ export default {
       const shift = isLeft ? -(this.horizontalStrechPad + this.size.width) : this.horizontalStrechPad;
       return {
         x: this.center.x - (this.size.width * 0) - this.style.padding.left + shift,
-        y: this.center.y - (this.size.height / 2) - this.style.padding.top,
+        y: this.center.y - (this.size.height / 2),
         width: this.size.width,
-        height: this.size.height + this.style.padding.height
+        height: this.size.height,
       };
     };
 
@@ -182,7 +182,7 @@ export default {
         this.ctx.fillText(
           this.lines[idx],
           Math.round(x) + this.style.padding.left,
-          Math.round(y) + this.style.padding.top,
+          Math.round(y),
           Math.round(this.textRect.width)
         );
         y += lh;
