@@ -22,6 +22,7 @@
     "graceful-fs": "^4.2.9"
   },
   "devDependencies": {
+    "@semantic-release/git": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "chart.js": "^3.8.0",
