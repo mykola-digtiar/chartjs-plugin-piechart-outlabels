@@ -1,7 +1,7 @@
 /*!
- * chartjs-plugin-piechart-outlabels v0.1.3
+ * @energiency/chartjs-plugin-piechart-outlabels v1.2.0
  * http://www.chartjs.org
- * (c) 2017-2022 chartjs-plugin-piechart-outlabels contributors
+ * (c) 2017-2022 @energiency/chartjs-plugin-piechart-outlabels contributors
  * Released under the MIT license
  */
 import { Chart, defaults } from 'chart.js';
@@ -13,7 +13,7 @@ import { valueOrDefault, toLineHeight, isNullOrUndef, resolve, toPadding } from 
 
 var customDefaults = {
 
-  LABEL_KEY: '$outlabels',
+  PLUGIN_KEY: '$outlabels',
 
   /**
 	 * The color used to draw the background of the label rect.
@@ -117,10 +117,10 @@ var customDefaults = {
 	 * @default 4 (all values)
 	 */
   padding: {
-    top: 4,
-    right: 4,
-    bottom: 4,
-    left: 4
+    top: 2,
+    right: 2,
+    bottom: 2,
+    left: 2
   },
 
   /**
@@ -135,14 +135,14 @@ var customDefaults = {
 	 * @member {Number|Array|Function|undefined}
 	 * @default 30
 	 */
-  stretch: 20,
+  stretch: 10,
 
   /**
 	 * The length of the horizontal part of line between label and chart arc.
 	 * @member {Number}
 	 * @default 30
 	 */
-  horizontalStrechPad: 20,
+  horizontalStrechPad: 12,
 
   /**
 	 * The text of the label.
@@ -156,7 +156,7 @@ var customDefaults = {
 	 * @member {Number}
 	 * @default 10 (%)
 	 */
-  zoomOutPercentage: 50,
+  zoomOutPercentage: 30,
 
   /**
 	 * The count of numbers after the point separator for float values of percent property
@@ -283,14 +283,15 @@ function parseFont(value, height) {
   return font;
 }
 
-var LABEL_KEY$1 = customDefaults.LABEL_KEY;
+var PLUGIN_KEY$1 = customDefaults.PLUGIN_KEY;
 
 var classes = {
-  OutLabel: function(el, index, ctx, config, context) {
+  OutLabel: function(chart, index, ctx, config, context) {
     // Check whether the label should be displayed
     if (!resolve([config.display, true], context, index)) {
       throw new Error('Label display property is set to false.');
     }
+
     // Init text
     var value = context.dataset.data[index];
     var label = context.labels[index];
@@ -383,18 +384,23 @@ var classes = {
         x: x,
         y: y,
         width: width,
-        height: height
+        height: height,
+        isLeft: this.textRect.isLeft,
+        isTop: this.textRect.isTop
       };
     };
 
     this.computeTextRect = function() {
       const isLeft = this.center.x - this.center.anchor.x < 0;
+      const isTop = this.center.y - this.center.anchor.y < 0;
       const shift = isLeft ? -(this.horizontalStrechPad + this.size.width) : this.horizontalStrechPad;
       return {
-        x: this.center.x - (this.size.width * 0) - this.style.padding.left + shift,
+        x: this.center.x - this.style.padding.left + shift,
         y: this.center.y - (this.size.height / 2),
         width: this.size.width,
         height: this.size.height,
+        isLeft,
+        isTop
       };
     };
 
@@ -467,32 +473,6 @@ var classes = {
       }
     };
 
-    // Draw label box
-    this.drawLabel = function() {
-      ctx.beginPath();
-      this.ctx.fillRect(
-        this.ctx,
-        Math.round(this.labelRect.x),
-        Math.round(this.labelRect.y),
-        Math.round(this.labelRect.width),
-        Math.round(this.labelRect.height),
-        this.style.borderRadius
-      );
-      this.ctx.closePath();
-
-      if (this.style.backgroundColor) {
-        this.ctx.fillStyle = this.style.backgroundColor || 'black';
-        this.ctx.fill();
-      }
-
-      if (this.style.borderColor && this.style.borderWidth) {
-        this.ctx.strokeStyle = this.style.borderColor;
-        this.ctx.lineWidth = this.style.borderWidth;
-        this.ctx.lineJoin = 'miter';
-        this.ctx.stroke();
-      }
-    };
-
     this.ccw = function(A, B, C) {
       return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
     };
@@ -528,8 +508,10 @@ var classes = {
     };
 
     this.draw = function() {
-      this.drawLabel();
-      this.drawText();
+      if (chart.getDataVisibility(index)) {
+        this.drawText();
+        this.drawLine();
+      }
     };
 
 
@@ -542,12 +524,14 @@ var classes = {
       while (!valid) {
         this.textRect = this.computeTextRect();
         this.labelRect = this.computeLabelRect();
+
         var rectPoints = this.getPoints();
+
         valid = true;
 
         for (var e = 0; e < max; ++e) {
-          var element = elements[e][LABEL_KEY$1];
-          if (!element) {
+          var element = elements[e][PLUGIN_KEY$1];
+          if (!element || !chart.getDataVisibility(index)) {
             continue;
           }
 
@@ -567,7 +551,7 @@ var classes = {
         }
 
         if (!valid) {
-          this.center = positioners.moveFromAnchor(this.center, 1);
+          this.center = positioners.moveFromAnchor(this.center, 10);
         }
       }
     };
@@ -578,7 +562,7 @@ var classes = {
 defaults.plugins.outlabels = customDefaults;
 
 
-var LABEL_KEY = customDefaults.LABEL_KEY;
+var PLUGIN_KEY = customDefaults.PLUGIN_KEY;
 
 function configure(dataset, options) {
   var override = dataset.outlabels;
@@ -603,10 +587,52 @@ var plugin = {
   afterUpdate: (chart) => {
     const ctrl = chart._metasets[0].controller;
     var meta = ctrl.getMeta();
-    var zoomOutPercentage = chart.options.zoomOutPercentage || customDefaults.zoomOutPercentage;
 
-    ctrl.outerRadius *= 1 - zoomOutPercentage / 100;
-    ctrl.innerRadius *= 1 - zoomOutPercentage / 100;
+    var elements = meta.data || [];
+    const rect = {
+      x1: Infinity,
+      x2: 0,
+      y1: Infinity,
+      y2: 0
+    };
+    elements.forEach((el, index) => {
+      const outlabelPlugin = el[PLUGIN_KEY];
+      if (!outlabelPlugin) {
+        return;
+      }
+
+      outlabelPlugin.update(el, elements, index);
+      const x = outlabelPlugin.labelRect.x + (!outlabelPlugin.labelRect.isLeft ? 0 : outlabelPlugin.labelRect.width);
+      const y = outlabelPlugin.labelRect.y + (outlabelPlugin.labelRect.isTop ? -outlabelPlugin.labelRect.height : 0);
+      if (x < rect.x1) {
+        rect.x1 = x;
+      }
+      if (x > rect.x2) {
+        rect.x2 = x;
+      }
+      if (y < rect.y1) {
+        rect.y1 = y;
+      }
+      if (y > rect.y2) {
+        rect.y2 = y;
+      }
+    });
+    const maxXDiff = Math.max(...[
+      chart.chartArea.left - rect.x1,
+      rect.x2 - (chart.chartArea.width - chart.chartArea.left),
+    ]);
+    const diffX = maxXDiff > 0 ? maxXDiff : 0;
+    const maxYDiff = Math.max(...[
+      chart.chartArea.top - rect.y1,
+      rect.y2 - (chart.chartArea.height - chart.chartArea.top),
+    ]);
+    const diffY = maxYDiff > 0 ? maxYDiff : 0;
+    const diff = Math.max(diffX, diffY) * 2;
+
+    var max = chart.options.zoomOutPercentage || customDefaults.zoomOutPercentage;
+
+    ctrl.outerRadius -= Math.min(diff, max);
+    ctrl.innerRadius = ctrl.outerRadius / 2;
 
     ctrl.updateElements(meta.data, 0, meta.data.length, 'resize');
   },
@@ -622,7 +648,7 @@ var plugin = {
 
     for (i = 0; i < elements.length; ++i) {
       el = elements[i];
-      label = el[LABEL_KEY];
+      label = el[PLUGIN_KEY];
       percent = dataset.data[i] / args.meta.total;
       newLabel = null;
 
@@ -636,7 +662,7 @@ var plugin = {
             datasetIndex: args.index,
             percent: percent
           };
-          newLabel = new classes.OutLabel(el, i, ctx, config, context);
+          newLabel = new classes.OutLabel(chart, i, ctx, config, context);
         } catch (e) {
           newLabel = null;
         }
@@ -644,13 +670,11 @@ var plugin = {
 
       if (
         label && newLabel && !chart.sizeChanged &&
-		(label.label === newLabel.label) && (label.encodedText === newLabel.encodedText)
+    (label.label === newLabel.label) && (label.encodedText === newLabel.encodedText)
       ) {
         newLabel.offset = label.offset;
       }
-
-      el[LABEL_KEY] = newLabel;
-
+      el[PLUGIN_KEY] = newLabel;
     }
 
     ctx.restore();
@@ -659,25 +683,16 @@ var plugin = {
   afterDatasetDraw: function(chart, args) {
     var elements = args.meta.data || [];
     var ctx = chart.ctx;
-    var el, label, index;
 
-    for (var i = 0; i < 2 * elements.length; ++i) {
-      index = i < elements.length ? i : i - elements.length;
-
-      el = elements[index];
-      label = el[LABEL_KEY];
-      if (!label) {
-        continue;
+    elements.forEach((el, index) => {
+      const outlabelPlugin = el[PLUGIN_KEY];
+      if (!outlabelPlugin) {
+        return;
       }
-
-      if (i < elements.length) {
-        label.update(el, elements, i);
-        label.drawLine(ctx);
-      } else {
-        label.draw(ctx);
-      }
-    }
-  }
+      outlabelPlugin.update(el, elements, index);
+      outlabelPlugin.draw(ctx);
+    });
+  },
 };
 
 export { plugin as default };

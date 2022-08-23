@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="./style.css">
 	<link rel="icon" type="image/ico" href="./favicon.ico">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
-	<script src="../dist/chartjs-plugin-piechart-outlabels.js"></script>
+	<script src="../dist/@energiency/chartjs-plugin-piechart-outlabels.js"></script>
 	<script src="./utils.js"></script>
 	<script src="./jscolor.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
@@ -128,7 +128,9 @@
 			</div>
 		</div>
 		<div class="col-9">
-			<div class="chart-container" style="position: relative; height:40vh; width:40vw">
+			<div class="chart-container" style="position: relative;     width: 513px;
+			height: 226.5px;
+			display: block;">
 				<canvas id="pieChart" ></canvas>
 			</div>
 
@@ -197,20 +199,18 @@
 		var params = {
 			display: true,
 			lineWidth: 1,
-			padding: 8,
+			padding: 4,
 			textAlign: 'left',
-			stretch: 30,
 			font: {
 				resizable: true,
 				minSize: 12,
 				maxSize: 16
 			},
 			color: '#565656',
-			lineColor: '#BFBFBF',
-			backgroundColor: 'transparent',
+			backgroundColor: 'red',
 			valuePrecision: 0,
 			percentPrecision: 2,
-			text: '%l (%p)\nValue %v',
+			text: '%v',
 		}
 
 		var data = Samples.numbers({
@@ -229,19 +229,32 @@
 	</script>
 
 	<script id="script-construct">
-		var chart = new Chart('pieChart', {
+		function fitContainer(canvas) {
+			canvas.style.width = '100%';
+			canvas.style.height = '100%';
+			canvas.width = canvas.offsetWidth;
+			canvas.height = canvas.offsetHeight;
+		}
+		const canvas = document.getElementById('pieChart')
+        fitContainer(canvas);
+		var chart = new Chart(canvas, {
 			type: 'doughnut',
 			data: {
-				labels: Samples.LABELS,
+				labels: Samples.LABELS.slice(0, data.length ),
 				datasets: [{
 					backgroundColor: bgColors,
 					data: data
 				}]
 			},
 			options: {
-				responsive: true,
+				legend: {
+					display: false
+				},
 				plugins: {
 					outlabels: params
+				},
+				animation: {
+					duration: 0
 				}
 			},
 			plugins: [

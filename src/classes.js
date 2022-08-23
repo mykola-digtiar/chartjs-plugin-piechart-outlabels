@@ -5,14 +5,15 @@ import positioners from './positioners.js';
 import {textSize, parseFont} from './custom-helpers';
 import customDefaults from './custom-defaults.js';
 
-var LABEL_KEY = customDefaults.LABEL_KEY;
+var PLUGIN_KEY = customDefaults.PLUGIN_KEY;
 
 export default {
-  OutLabel: function(el, index, ctx, config, context) {
+  OutLabel: function(chart, index, ctx, config, context) {
     // Check whether the label should be displayed
     if (!resolve([config.display, true], context, index)) {
       throw new Error('Label display property is set to false.');
     }
+
     // Init text
     var value = context.dataset.data[index];
     var label = context.labels[index];
@@ -105,18 +106,23 @@ export default {
         x: x,
         y: y,
         width: width,
-        height: height
+        height: height,
+        isLeft: this.textRect.isLeft,
+        isTop: this.textRect.isTop
       };
     };
 
     this.computeTextRect = function() {
       const isLeft = this.center.x - this.center.anchor.x < 0;
+      const isTop = this.center.y - this.center.anchor.y < 0;
       const shift = isLeft ? -(this.horizontalStrechPad + this.size.width) : this.horizontalStrechPad;
       return {
-        x: this.center.x - (this.size.width * 0) - this.style.padding.left + shift,
+        x: this.center.x - this.style.padding.left + shift,
         y: this.center.y - (this.size.height / 2),
         width: this.size.width,
         height: this.size.height,
+        isLeft,
+        isTop
       };
     };
 
@@ -189,32 +195,6 @@ export default {
       }
     };
 
-    // Draw label box
-    this.drawLabel = function() {
-      ctx.beginPath();
-      this.ctx.fillRect(
-        this.ctx,
-        Math.round(this.labelRect.x),
-        Math.round(this.labelRect.y),
-        Math.round(this.labelRect.width),
-        Math.round(this.labelRect.height),
-        this.style.borderRadius
-      );
-      this.ctx.closePath();
-
-      if (this.style.backgroundColor) {
-        this.ctx.fillStyle = this.style.backgroundColor || 'black';
-        this.ctx.fill();
-      }
-
-      if (this.style.borderColor && this.style.borderWidth) {
-        this.ctx.strokeStyle = this.style.borderColor;
-        this.ctx.lineWidth = this.style.borderWidth;
-        this.ctx.lineJoin = 'miter';
-        this.ctx.stroke();
-      }
-    };
-
     this.ccw = function(A, B, C) {
       return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
     };
@@ -250,8 +230,10 @@ export default {
     };
 
     this.draw = function() {
-      this.drawLabel();
-      this.drawText();
+      if (chart.getDataVisibility(index)) {
+        this.drawText();
+        this.drawLine();
+      }
     };
 
 
@@ -264,12 +246,14 @@ export default {
       while (!valid) {
         this.textRect = this.computeTextRect();
         this.labelRect = this.computeLabelRect();
+
         var rectPoints = this.getPoints();
+
         valid = true;
 
         for (var e = 0; e < max; ++e) {
-          var element = elements[e][LABEL_KEY];
-          if (!element) {
+          var element = elements[e][PLUGIN_KEY];
+          if (!element || !chart.getDataVisibility(index)) {
             continue;
           }
 
@@ -289,7 +273,7 @@ export default {
         }
 
         if (!valid) {
-          this.center = positioners.moveFromAnchor(this.center, 1);
+          this.center = positioners.moveFromAnchor(this.center, 10);
         }
       }
     };
