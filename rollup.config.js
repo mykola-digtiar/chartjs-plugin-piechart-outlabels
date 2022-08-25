@@ -8,13 +8,15 @@ const banner = `/*!
  * Released under the ${pkg.license} license
  */`;
 
+const fileName = pkg.name.split('/').at(-1);
+
 module.exports = [
   {
     input: 'src/plugin.js',
     output: ['.js', '.min.js'].map((suffix) => {
       const config = {
         name: 'ChartPieChartOutlabels',
-        file: `dist/${pkg.name}${suffix}`,
+        file: `dist/${fileName}${suffix}`,
         banner: banner,
         format: 'umd',
         indent: false,
