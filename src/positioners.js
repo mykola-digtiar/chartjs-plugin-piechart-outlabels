@@ -1,7 +1,7 @@
 'use strict';
 
 export default {
-	center: function(arc, stretch) {
+	center: function(arc, stretch, stretchMargin) {
 		var angle = (arc.startAngle + arc.endAngle) / 2;
 		var cosA = Math.cos(angle);
 		var sinA = Math.sin(angle);
@@ -10,8 +10,8 @@ export default {
 		var stretchedD = d + stretch;
 		return {
 			x: arc.x + cosA * stretchedD,
-			y: arc.y + sinA * stretchedD,
-			d: stretchedD,
+			y: arc.y + sinA * (stretchedD + stretchMargin),
+			d: stretchedD + stretchMargin,
 			arc: arc,
 			anchor: {
 				x: arc.x + cosA * d,

@@ -84,6 +84,7 @@ export default {
 			};
 
 			this.stretch = resolve([config.stretch, 40], context, index);
+			this.stretchMargin = resolve([config.stretchMargin, 0], context, index);
 			this.size = helpers.textSize(ctx, this.lines, this.style.font);
 
 			this.offsetStep = this.size.width / 20;
@@ -271,7 +272,7 @@ export default {
 
 
 		this.update = function(view, elements, max) {
-			this.center = positioners.center(view, this.stretch);
+			this.center = positioners.center(view, this.stretch, this.stretchMargin);
 			this.moveLabelToOffset();
 
 			this.center.x += this.offset.x;
