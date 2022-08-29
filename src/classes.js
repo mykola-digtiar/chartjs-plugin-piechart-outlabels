@@ -27,9 +27,9 @@ export default {
 			var prec = val.replace(/%v\./gi, '');
 			if (prec.length) {
 				return +prec;
-			} else {
-				return config.valuePrecision || defaults.valuePrecision;
 			}
+			return config.valuePrecision || defaults.valuePrecision;
+
 		}).forEach(function(val) {
 			text = text.replace(/%v\.?(\d*)/i, value.toFixed(val));
 		});
@@ -39,9 +39,9 @@ export default {
 			var prec = val.replace(/%p\./gi, '');
 			if (prec.length) {
 				return +prec;
-			} else  {
-				return config.percentPrecision || defaults.percentPrecision;
 			}
+			return config.percentPrecision || defaults.percentPrecision;
+
 		}).forEach(function(val) {
 			text = text.replace(/%p\.?(\d*)/i, (context.percent * 100).toFixed(val) + '%');
 		});
@@ -152,6 +152,22 @@ export default {
 				{
 					x: this.labelRect.x,
 					y: this.labelRect.y + this.labelRect.height
+				},
+				{
+					x: this.textRect.x,
+					y: this.textRect.y
+				},
+				{
+					x: this.textRect.x + this.textRect.width,
+					y: this.textRect.y
+				},
+				{
+					x: this.textRect.x + this.textRect.width,
+					y: this.textRect.y + this.textRect.height
+				},
+				{
+					x: this.textRect.x,
+					y: this.textRect.y + this.textRect.height
 				}
 			];
 		};
@@ -161,9 +177,9 @@ export default {
 				offset = 5;
 			}
 
-			return	this.labelRect.x - offset <= point.x && point.x <= this.labelRect.x + this.labelRect.width + offset
+			return	this.textRect.x - offset <= point.x && point.x <= this.textRect.x + this.textRect.width + offset
 							&&
-						this.labelRect.y - offset <= point.y && point.y <= this.labelRect.y + this.labelRect.height + offset;
+						this.textRect.y - offset <= point.y && point.y <= this.textRect.y + this.textRect.height + offset;
 		};
 
 
@@ -284,7 +300,7 @@ export default {
 							break;
 						}
 
-						if(this.containsPoint(elPoints[p])) {
+						if (this.containsPoint(elPoints[p])) {
 							valid = false;
 							break;
 						}
@@ -292,9 +308,14 @@ export default {
 				}
 
 				if (!valid) {
-					this.center = positioners.moveFromAnchor(this.center, 1);
-					this.center.x += this.offset.x;
-					this.center.y += this.offset.y;
+					var angle = (this.center.arc.startAngle + this.center.arc.endAngle) / 2;
+					var offsetX = Math.cos(angle) * this.stretch;
+					var offsetY = Math.sin(angle) * this.stretch;
+
+					this.center.x += offsetX;
+					this.center.y += offsetY;
+					this.center.copy.x += offsetX;
+					this.center.copy.y += offsetY;
 				}
 			}
 		};
