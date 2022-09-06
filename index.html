@@ -128,7 +128,9 @@
 			</div>
 		</div>
 		<div class="col-9">
-			<div class="chart-container" style="position: relative; height:40vh; width:40vw">
+			<div class="chart-container" style="position: relative;     width: 1058px;
+			height: 731px;
+			display: block;">
 				<canvas id="pieChart" ></canvas>
 			</div>
 
@@ -197,20 +199,18 @@
 		var params = {
 			display: true,
 			lineWidth: 1,
-			padding: 8,
+			padding: 2,
 			textAlign: 'left',
-			stretch: 30,
 			font: {
 				resizable: true,
 				minSize: 12,
 				maxSize: 16
 			},
 			color: '#565656',
-			lineColor: '#BFBFBF',
-			backgroundColor: 'transparent',
+			backgroundColor: 'red',
 			valuePrecision: 0,
 			percentPrecision: 2,
-			text: '%l (%p)\nValue %v',
+			text: '%p\n%v',
 		}
 
 		var data = Samples.numbers({
@@ -229,19 +229,32 @@
 	</script>
 
 	<script id="script-construct">
-		var chart = new Chart('pieChart', {
+		function fitContainer(canvas) {
+			canvas.style.width = '100%';
+			canvas.style.height = '100%';
+			canvas.width = canvas.offsetWidth;
+			canvas.height = canvas.offsetHeight;
+		}
+		const canvas = document.getElementById('pieChart')
+        fitContainer(canvas);
+		var chart = new Chart(canvas, {
 			type: 'doughnut',
 			data: {
-				labels: Samples.LABELS,
+				labels: Samples.LABELS.slice(0, data.length ),
 				datasets: [{
 					backgroundColor: bgColors,
 					data: data
 				}]
 			},
 			options: {
-				responsive: true,
+				legend: {
+					display: false
+				},
 				plugins: {
 					outlabels: params
+				},
+				animation: {
+					duration: 0
 				}
 			},
 			plugins: [

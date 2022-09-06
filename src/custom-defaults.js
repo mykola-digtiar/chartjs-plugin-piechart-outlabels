@@ -6,7 +6,7 @@
 
 export default {
 
-  LABEL_KEY: '$outlabels',
+  PLUGIN_KEY: '$outlabels',
 
   /**
 	 * The color used to draw the background of the label rect.
@@ -110,10 +110,10 @@ export default {
 	 * @default 4 (all values)
 	 */
   padding: {
-    top: 4,
-    right: 4,
-    bottom: 4,
-    left: 4
+    top: 2,
+    right: 2,
+    bottom: 2,
+    left: 2
   },
 
   /**
@@ -128,14 +128,14 @@ export default {
 	 * @member {Number|Array|Function|undefined}
 	 * @default 30
 	 */
-  stretch: 20,
+  stretch: 12,
 
   /**
 	 * The length of the horizontal part of line between label and chart arc.
 	 * @member {Number}
 	 * @default 30
 	 */
-  horizontalStrechPad: 20,
+  horizontalStrechPad: 12,
 
   /**
 	 * The text of the label.
@@ -145,11 +145,11 @@ export default {
   text: '%l %p',
 
   /**
-	 * The level of zoom (out) for pie/doughnut chart in percent.
+	 * The max level of zoom (out) for pie/doughnut chart in percent.
 	 * @member {Number}
-	 * @default 10 (%)
+	 * @default 50 (%)
 	 */
-  zoomOutPercentage: 50,
+  maxZoomOutPercentage: 50,
 
   /**
 	 * The count of numbers after the point separator for float values of percent property
