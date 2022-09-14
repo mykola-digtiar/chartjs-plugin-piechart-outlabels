@@ -65,13 +65,13 @@ export default {
     });
 
     var max = chart.options.maxZoomOutPercentage || customDefaults.maxZoomOutPercentage;
-    const t = [
+    const maxDeltas = [
       chart.chartArea.left - rect.x1,
       chart.chartArea.top - rect.y1,
       rect.x2 - chart.chartArea.right,
       rect.y2 - chart.chartArea.bottom
     ];
-    const diff = Math.max(...t.filter(x => x > 0));
+    const diff = Math.max(...maxDeltas.filter(x => x > 0), 0);
     const percent = diff * 100 / ctrl.outerRadius;
     ctrl.outerRadius -= percent < max ? diff : max * 100 / ctrl.outerRadius;
     ctrl.innerRadius = ctrl.outerRadius / 2;
