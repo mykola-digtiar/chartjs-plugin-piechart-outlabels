@@ -1,12 +1,10 @@
-'use strict';
-import {defaults as ChartDefaults} from 'chart.js';
-import customDefaults from './custom-defaults.js';
-
-import classes from './classes.js';
-
+"use strict";
+import { defaults as ChartDefaults } from "chart.js";
+import customDefaults from "./custom-defaults.js";
+import { getState, removeState } from "./state.js";
+import classes from "./classes.js";
 
 ChartDefaults.plugins.outlabels = customDefaults;
-
 
 var PLUGIN_KEY = customDefaults.PLUGIN_KEY;
 
@@ -22,63 +20,126 @@ function configure(dataset, options) {
   }
 
   return Object.assign({}, config, options, override);
+}
 
+/**
+ * Returns the bounding box of the given label elements.
+ *
+ * @param {*} elements List of chart elements
+ * @returns Bounding box
+ */
+function getBoundingBox(elements) {
+  const rect = {
+    left: Infinity,
+    right: -Infinity,
+    top: Infinity,
+    bottom: -Infinity,
+  };
+
+  for (let i = 0, l = elements.length; i < l; i++) {
+    const outlabel = elements[i][PLUGIN_KEY];
+    if (!outlabel || !outlabel.labelRect) {
+      continue;
+    }
+
+    const { labelRect } = outlabel;
+    const { x, y, width, height } = labelRect;
+
+    rect.left = Math.min(rect.left, x);
+    rect.right = Math.max(rect.right, x + width);
+    rect.top = Math.min(rect.top, y);
+    rect.bottom = Math.max(rect.bottom, y + height);
+  }
+
+  return {
+    ...rect,
+    width: rect.right - rect.left,
+    height: rect.bottom - rect.top,
+  };
+}
+
+/**
+ * Returns the zoom percentage required to fit the given bounding box within the given bounding box.
+ *
+ * @param {*} boundingBoxToResize
+ * @param {*} boundingBoxToFitWithin
+ * @returns Zoom percentage
+ */
+function getResizeZoomPercentage(boundingBoxToResize, boundingBoxToFitWithin) {
+  const { width, height } = boundingBoxToFitWithin;
+  const deltas = [
+    ((boundingBoxToFitWithin.left - boundingBoxToResize.left) / width) * 2,
+    ((boundingBoxToFitWithin.top - boundingBoxToResize.top) / height) * 2,
+    ((boundingBoxToResize.right - boundingBoxToFitWithin.right) / width) * 2,
+    ((boundingBoxToResize.bottom - boundingBoxToFitWithin.bottom) / height) * 2,
+  ];
+
+  const maxDelta = Math.max(0, ...deltas);
+  return 1 - maxDelta;
+}
+
+/**
+ * Updates the labels of the given elements.
+ * @param {*} elements
+ */
+function updateLabels(elements) {
+  for (let i = 0, l = elements.length; i < l; i++) {
+    const element = elements[i];
+    const outlabel = element[PLUGIN_KEY];
+    if (!outlabel) {
+      continue;
+    }
+
+    outlabel.update(element, elements, i);
+  }
+}
+
+function fitChartArea(chart) {
+  const ctrl = chart._metasets[0].controller;
+  const meta = ctrl.getMeta();
+  const elements = meta.data || [];
+
+  const boundingBox = getBoundingBox(elements);
+  const zoom = getResizeZoomPercentage(boundingBox, chart.chartArea);
+
+  if (zoom && zoom !== 1) {
+    ctrl.outerRadius = ctrl.outerRadius * zoom;
+    ctrl.innerRadius *= zoom;
+
+    ctrl.updateElements(meta.data, 0, meta.data.length, "none");
+    return true;
+  }
+
+  return false;
 }
 
 export default {
-  id: 'outlabels',
-  resize: function(chart) {
-    chart.sizeChanged = true;
+  id: "outlabels",
+  resize: function (chart) {
+    getState(chart).sizeChanged = true;
   },
   afterUpdate: (chart) => {
     const ctrl = chart._metasets[0].controller;
-    var meta = ctrl.getMeta();
+    const meta = ctrl.getMeta();
+    const elements = meta.data || [];
 
-    var elements = meta.data || [];
-    const rect = {
-      x1: Infinity,
-      x2: 0,
-      y1: Infinity,
-      y2: 0
-    };
-    elements.forEach((el, index) => {
-      const outlabelPlugin = el[PLUGIN_KEY];
-      if (!outlabelPlugin) {
-        return;
-      }
+    let fit = false;
+    // Limit the number of steps to prevent infinite loops
+    // It seems that using the number of elements will ensure that the chart
+    // fits by positioning all labels in successive resizes
+    let maxSteps = elements.length;
 
-      outlabelPlugin.update(el, elements, index);
-      const x = outlabelPlugin.labelRect.x + (!outlabelPlugin.labelRect.isLeft ? 0 : outlabelPlugin.labelRect.width);
-      const y = outlabelPlugin.labelRect.y + (outlabelPlugin.labelRect.isTop ? 0 : outlabelPlugin.labelRect.height);
-      if (x < rect.x1) {
-        rect.x1 = x;
-      }
-      if (x > rect.x2) {
-        rect.x2 = x;
-      }
-      if (y < rect.y1) {
-        rect.y1 = y;
-      }
-      if (y > rect.y2) {
-        rect.y2 = y;
-      }
-    });
+    // Avoid to draw labels while fitting the chart area
+    getState(chart).fitting = true;
 
-    var max = chart.options.maxZoomOutPercentage || customDefaults.maxZoomOutPercentage;
-    const maxDeltas = [
-      chart.chartArea.left - rect.x1,
-      chart.chartArea.top - rect.y1,
-      rect.x2 - chart.chartArea.right,
-      rect.y2 - chart.chartArea.bottom
-    ];
-    const diff = Math.max(...maxDeltas.filter(x => x > 0), 0);
-    const percent = diff * 100 / ctrl.outerRadius;
-    ctrl.outerRadius -= percent < max ? diff : max * 100 / ctrl.outerRadius;
-    ctrl.innerRadius = ctrl.outerRadius / 2;
+    while (!fit && maxSteps-- > 0) {
+      updateLabels(elements);
+      fit = !fitChartArea(chart);
+    }
 
-    ctrl.updateElements(meta.data, 0, meta.data.length, 'resize');
+    getState(chart).fitting = false;
   },
-  afterDatasetUpdate: function(chart, args, options) {
+  afterDatasetUpdate: function (chart, args, options) {
     var labels = chart.config.data.labels;
     var dataset = chart.data.datasets[args.index];
     var config = configure(dataset, options);
@@ -102,7 +163,7 @@ export default {
             dataset: dataset,
             labels: labels,
             datasetIndex: args.index,
-            percent: percent
+            percent: percent,
           };
           newLabel = new classes.OutLabel(chart, i, ctx, config, context);
         } catch (e) {
@@ -111,8 +172,11 @@ export default {
       }
 
       if (
-        label && newLabel && !chart.sizeChanged &&
-    (label.label === newLabel.label) && (label.encodedText === newLabel.encodedText)
+        label &&
+        newLabel &&
+        !getState(chart).sizeChanged &&
+        label.label === newLabel.label &&
+        label.encodedText === newLabel.encodedText
       ) {
         newLabel.offset = label.offset;
       }
@@ -120,11 +184,15 @@ export default {
     }
 
     ctx.restore();
-    chart.sizeChanged = false;
+    getState(chart).sizeChanged = false;
   },
-  afterDatasetDraw: function(chart, args) {
+  afterDatasetDraw: function (chart, args) {
     var elements = args.meta.data || [];
     var ctx = chart.ctx;
+
+    if (getState(chart).fitting) {
+      return;
+    }
 
     elements.forEach((el, index) => {
       const outlabelPlugin = el[PLUGIN_KEY];
@@ -134,5 +202,8 @@ export default {
       outlabelPlugin.update(el, elements, index);
       outlabelPlugin.draw(ctx);
     });
+  },
+  afterDestroy: function (chart) {
+    removeState(chart);
   },
 };
